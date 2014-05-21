@@ -19,7 +19,7 @@ ImgExt = 'png';     % Lets just keep it to png if we can
 FinalImgSize = [32 32]; % Size in pixels of final image
 
 % Chunk the image into square patches
-ChunkImage = 0;     % Only makes sense for very rectangular logos, it will be cut into square images
+ChunkImage = 1;     % Only makes sense for very rectangular logos, it will be cut into square images
 
 % Synthetic variation settings
 Rotations   = -26:2:26;
@@ -53,7 +53,7 @@ end
 Files = dir(fullfile(LogoImgDir,['*.' ImgExt]));
 for f = 1:length(Files)
     im = (imread(fullfile(LogoImgDir,Files(f).name)));  % Read img and convert to grayscale
-    if length(size(im)) > 3, im = rgb2gray(im); end;
+    if length(size(im)) > 2, im = rgb2gray(im); end;
     if ChunkImage == 1
         % Divide the image into square chunks
         imgSz = size(im);
@@ -64,7 +64,7 @@ for f = 1:length(Files)
             if MinDim == 1
                 Rows = [1 imgSz(1)];Cols = [c c+imgSz(1)-1];
             else
-                Cols = [c c+imgSz(2)-1];Cols = [1 imgSz(2)];
+                Rows = [c c+imgSz(2)-1];Cols = [1 imgSz(2)];
             end
             % If we are at the end of the image (let the final block end at the end of image
             if Rows(2) > imgSz(1), Rows = [imgSz(1)-StepVal+1 imgSz(1)]; end
