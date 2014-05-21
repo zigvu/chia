@@ -12,7 +12,7 @@ fprintf('\nReading positive image samples ... \n');
 for i = 1:length(Imgs)
     imFile = fullfile(PositivePatchesDir,Imgs(i).name);
     im = (imread(imFile));  % All ready black and white  
-    im = imresize(im,[32, 32]);
+    %im = imresize(im,[32, 32]);
     if length(size(im)) > 2, im = rgb2gray(im); end   % Convert to gray scale if needed
     trainX(i,:) = reshape(im,1,prod(ImagePatchSize));
     if mod(i,1000)==0, fprintf('  %i of %i in %f s \n',i,length(Imgs),toc); end
