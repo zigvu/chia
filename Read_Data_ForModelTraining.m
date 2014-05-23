@@ -77,6 +77,15 @@ TotalImages = length(D)-2;
 PatchesPerImage = round(Samples./TotalImages);
 trainX = zeros(PatchesPerImage*TotalImages,Ht*Wt,'uint8');
 trainY = 1+ones(PatchesPerImage*TotalImages,1,'uint8');  % All negative examples
+
+% If user wants the patches dumped
+if DumpNegativePatches == 1     % Create or empty directory as needed
+    if isdir(DumpDir)
+        delete(fullfile(DumpDir,['*.' ImgExt]))
+    else
+        mkdir(DumpDir)
+    end
+end
 k = 1;
 fprintf('\n Reading patches from negative image bank ... \n');
 for d = 1:length(D)
@@ -91,8 +100,13 @@ for d = 1:length(D)
     cols = randi(size(im,2)-Wt,PatchesPerImage,1);
     for s = 1:PatchesPerImage
         trainX(k,:) = reshape(im(rows(s)+1:rows(s)+Ht,cols(s)+1:cols(s)+Wt),1,Ht*Wt);
-        %imwrite(im(rows(s)+1:rows(s)+Ht,cols(s)+1:cols(s)+Wt),fullfile('C:\Users\Amit\Documents\EvanVideo\LogoDataSets\Adidas\LogoProcessing\NegativePatches\FromImgBank',['Img_' num2str(k) '.png']),'png');
+        
+        
+        if DumpNegativePatches == 1
+            imwrite(im(rows(s)+1:rows(s)+Ht,cols(s)+1:cols(s)+Wt),fullfile(DumpDir,['Patch_' num2str(k) '.png']),'png');
+        end
         k = k+1;
+        
     end
     
     if mod(d-1,50) == 0, disp(['Patches extracted from ' num2str(d-2) ' of ' num2str(TotalImages) ' images']); end
