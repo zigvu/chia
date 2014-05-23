@@ -72,8 +72,8 @@ clear D Imgs b d i im* map
 ImgDir = NegImgBankDir;
 Ht = ImagePatchSize(1); Wt = ImagePatchSize(2);
 Samples = PatchesToExtract; % We want roughly 500K sample patches
-D = dir(ImgDir);
-TotalImages = length(D)-2;
+D = dir(fullfile(ImgDir,['*.' ImgExt]));
+TotalImages = length(D);
 PatchesPerImage = round(Samples./TotalImages);
 trainX = zeros(PatchesPerImage*TotalImages,Ht*Wt,'uint8');
 trainY = 1+ones(PatchesPerImage*TotalImages,1,'uint8');  % All negative examples
@@ -86,6 +86,7 @@ if DumpNegativePatches == 1     % Create or empty directory as needed
         mkdir(DumpDir)
     end
 end
+
 k = 1;
 fprintf('\n Reading patches from negative image bank ... \n');
 for d = 1:length(D)
@@ -99,17 +100,29 @@ for d = 1:length(D)
     rows = randi(size(im,1)-Ht,PatchesPerImage,1);
     cols = randi(size(im,2)-Wt,PatchesPerImage,1);
     for s = 1:PatchesPerImage
-        trainX(k,:) = reshape(im(rows(s)+1:rows(s)+Ht,cols(s)+1:cols(s)+Wt),1,Ht*Wt);
-        
+        if RandomizeScales == 1
+            Scale = Scales(randi(length(Scales),[1,1]));
+            Ht2 = Ht./Scale; Wt2 = Wt./Scale;
+            row2 = randi(size(im,1)-ceil(Ht2),[1,1]);
+            col2 = randi(size(im,2)-ceil(Wt2),[1,1]);
+            Block = im(row2+1:row2+Ht2, col2+1:col2+Wt2);
+            Block = imresize(Block,[Ht,Wt]);
+        else
+            Block = im(rows(s)+1:rows(s)+Ht,cols(s)+1:cols(s)+Wt);
+        end
+        %trainX(k,:) = reshape(im(rows(s)+1:rows(s)+Ht,cols(s)+1:cols(s)+Wt),1,Ht*Wt);       
+        trainX(k,:) = reshape(Block,1,Ht*Wt);       
         
         if DumpNegativePatches == 1
-            imwrite(im(rows(s)+1:rows(s)+Ht,cols(s)+1:cols(s)+Wt),fullfile(DumpDir,['Patch_' num2str(k) '.png']),'png');
+            %imwrite(im(rows(s)+1:rows(s)+Ht,cols(s)+1:cols(s)+Wt),fullfile(DumpDir,['Patch_' num2str(k) '.png']),'png');
+            imwrite(Block,fullfile(DumpDir,['Patch_' num2str(k) '.png']),'png');
         end
+        
         k = k+1;
         
     end
     
-    if mod(d-1,50) == 0, disp(['Patches extracted from ' num2str(d-2) ' of ' num2str(TotalImages) ' images']); end
+    if mod(d,50) == 0, disp(['Patches extracted from ' num2str(d) ' of ' num2str(TotalImages) ' images']); end
 end
 fprintf('%i Negative patches read from %i images (%i patches per image)\n',PatchesToExtract,TotalImages,PatchesPerImage);
 

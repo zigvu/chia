@@ -13,15 +13,21 @@ NegativePatchesDir = 'C:\Users\Amit\Documents\EvanVideo\LogoDataSets\Adidas\Logo
 % The directory conatining img bank frames that will be sampled randomly to
 % extract patches for negative image training
 NegImgBankDir       = 'C:\Users\Amit\Documents\EvanVideo\LogoDataSets\Adidas\LogoProcessing\NegativeImgBank';
-PatchesToExtract    = 200e3;   % Number of patches to extract from Negative Image Bank
+DumpNegativePatches = 1;    % If this is 1, dumps negative patches for user review to the 'DumpDir' folder
+    DumpDir         = 'C:\Users\Amit\Documents\EvanVideo\LogoDataSets\Adidas\LogoProcessing\NegativeImgBank\Patches';
+PatchesToExtract    = 1e3;   % Number of patches to extract from Negative Image Bank
 ImagePatchSize      = [32 32];  % Image Patch Size to expect
 ImgExt              = 'png';    % Extension of image files
 TestPercent         = [0.2];     % Keep 20% of data for testing (the remaining will be used for training)
+% User various scale in extracting patches from negative image bank
+RandomizeScales     = 1
+    Scales          = 0.4:0.2:2.0;
 
 % Model Params
 ModelDir    = fullfile(pwd,'Models');   
 ModelName   = 'Adidas_3Slants_V1';    % Give the model a name
 numCentroids = 150;    % Number of codebook variables (bigger the more data you need and more representational capacity)
+
 % MultiCore: Keep 1 if data wont fit in memory. Max 4.
 % The main issue is memory. As the training data gets larger, you require
 % more memory to use more cores. My rule of thumb is that if data is less
