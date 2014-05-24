@@ -1,0 +1,36 @@
+# class we are interested in
+class_name: adidas-long
+
+# run type - only one of these can be true
+run_type:
+  test_positive_patch: true
+  crop_positive_patch: false
+  test_negative_patch_from_positive: false
+  crop_negative_patch_from_positive: false
+  test_negative_patch: false
+  crop_negative_patch: false
+
+# for parallel processing
+max_number_of_threads: 2
+
+# set directories 
+input_base_folder: /home/evan/Vision/Scripts/TextGeneration/temp/annotation_matlab/input
+positive_input_images:                             images
+positive_input_annotation:                         annotations
+negative_input_images:                             notSetYet
+
+output_base_folder: /home/evan/Vision/Scripts/TextGeneration/temp/annotation_matlab/output
+test_run_results:                                  test_results
+positive_output_patches:                           positive_patch
+negatie_output_patches_from_positive_images:       negative_patch_from_positive
+negative_output_patches:                           notSetYet
+
+# for faster operations, provide tempfs location for intermediate computation
+tempfs: /mnt/tmp/SyntheticData
+
+# dimension for output patches - for now, only squares supported
+output_width:    256
+output_height:   256
+
+# synthetic data setting
+# NOT DONE YET
