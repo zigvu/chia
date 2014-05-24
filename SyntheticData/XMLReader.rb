@@ -24,21 +24,26 @@ class XMLReader
 		if annoObj.kind_of? Hash
 			name = h['annotation']['object']['name']
 			poly = h['annotation']['object']['polygon']['pt']
-			rectangle = get_polygon(poly)
-			@annotatedObjects.merge!({:"#{name}" => rectangle})
+			rectangles = [get_polygon(poly)]
+			@annotatedObjects.merge!({:"#{name}" => rectangles})
 		elsif annoObj.kind_of? Array
 			annoObj.each do |aObj|
 				name = aObj['name']
 				poly = aObj['polygon']['pt']
-				rectangle = get_polygon(poly)
-				@annotatedObjects.merge!({:"#{name}" => rectangle})
+				rectangles = @annotatedObjects[:"#{name}"]
+				if rectangles == nil
+					rectangles = [get_polygon(poly)]
+				else
+					rectangles = rectangles + [get_polygon(poly)]
+				end
+				@annotatedObjects.merge!({:"#{name}" => rectangles})
 			end
 		else
 			raise RuntimeError, "XMLReader: No objects found in XML file"
 		end
 	end
 
-	def get_rectangle(name)
+	def get_rectangles(name)
 		return @annotatedObjects[:"#{name}"]
 	end
 
