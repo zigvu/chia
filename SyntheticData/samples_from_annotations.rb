@@ -26,33 +26,47 @@ if __FILE__ == $0
 	configR = ConfigReader.new(config)
 	threads = []
 
-	Dir["#{configR.positiveAnnotationFolder}/*.xml"].each do |fname|
-		threads << Thread.new(configR, fname) { |configReader, xmlFileName|
+	Dir["#{configR.annotationFolder}/*.xml"].each do |fname|
+		#threads << Thread.new(configR, fname) { |configReader, xmlFileName|
+		configReader = configR
+		xmlFileName = fname
 			begin
 				puts "Starting: #{File.basename(xmlFileName,"*")}"
 				x = XMLReader.new(
 					"#{xmlFileName}", 
-					configReader.positiveImageFolder)
+					configReader.imageFolder)
 				ax = AnnotationExtractor.new(
 					x, 
 					configReader.className, 
 					configReader.tempFolder, 
-					configReader.testRunResults)
+					configReader.outputFolder)
 
 				# perform task
-				if configReader.runType == 'test_positive_patch'
+				if configReader.currentRunName == 'test_positive_patch'
 					ax.test_positive_patch(configReader.outputRectangleSize)
-				elsif configReader.runType == 'crop_positive_patch'
-					ax.extract_positive_patch(configReader.outputRectangleSize)
+				
+				elsif configReader.currentRunName == 'test_negative_patch_from_positive'
+					ax.test_negative_patch_from_positive(configReader.outputRectangleSize, 
+						configReader.numberOfPatchPerImage)
+				
+				elsif configReader.currentRunName == 'crop_positive_patch'
+					ax.crop_positive_patch(configReader.outputRectangleSize)
+
+				elsif configReader.currentRunName == 'crop_negative_patch_from_positive'
+					ax.crop_negative_patch_from_positive(configReader.outputRectangleSize, 
+						configReader.numberOfPatchPerImage)
+				
+				else
+					puts "Error: Function not yet implemented"
 				end
 				puts "Done: #{File.basename(xmlFileName)}"
 			rescue Exception => e
 				puts "Error: #{File.basename(xmlFileName)}: #{e.message}"
 			end
-		}
+		#}
 	end
 
-	threads.each { |thr| thr.join }
+	#threads.each { |thr| thr.join }
 end
 
 

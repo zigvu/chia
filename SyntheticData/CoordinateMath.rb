@@ -1,6 +1,24 @@
 require_relative 'Rectangle.rb'
 
 class CoordinateMath
+	def poly_to_rectangle(imageConstraintRect, polygon)
+		p = polygon
+		# for now, center the rectangle around the center of the polygon
+		xMinMax = [p.x0, p.x1, p.x2, p.x3].minmax
+		yMinMax = [p.y0, p.y1, p.y2, p.y3].minmax
+		width = xMinMax[1] - xMinMax[0]
+		height = yMinMax[1] - yMinMax[0]
+		xNew = Integer(xMinMax[0] + (xMinMax[1] - xMinMax[0])/2 - width/2)
+		yNew = Integer(yMinMax[0] + (yMinMax[1] - yMinMax[0])/2 - height/2)
+
+		xNew = 0 if xNew < 0; xNew = imageConstraintRect.x2 if xNew > imageConstraintRect.x2
+		yNew = 0 if yNew < 0; yNew = imageConstraintRect.y1 if yNew > imageConstraintRect.y1
+
+		rect = Rectangle.new
+		rect.from_dimension(xNew, yNew, width, height)
+		return rect
+	end
+
 	def poly_to_square(imageConstraintRect, polygon)
 		p = polygon
 		# for now, center the square around the center of the polygon
@@ -22,6 +40,55 @@ class CoordinateMath
 			raise RuntimeError, "CoordinateMath: Couldn't construct a square from polygon"
 		end
 		return square
+	end
+
+	def get_negative_candidate(imageConstraintRect, labelRect, outputRequirementRect)
+		ic = imageConstraintRect
+		lr = labelRect
+		oc = outputRequirementRect
+
+		clearanceTop 			= lr.y0 - ic.y0
+		clearanceBottom 	= ic.y1 - lr.y1
+		clearanceLeft			= lr.x0 - ic.x0
+		clearanceRight		= ic.x2 - lr.x2
+
+		possibleWindows = []
+		if clearanceTop > oc.height
+			rect = Rectangle.new
+			possibleWindows << rect.from_dimension(ic.x0, ic.y0, ic.width, clearanceTop)
+		end
+		if clearanceBottom > oc.height
+			rect = Rectangle.new
+			possibleWindows << rect.from_dimension(ic.x0, lr.y1, ic.width, clearanceBottom)
+		end
+		if clearanceLeft > oc.width
+			rect = Rectangle.new
+			possibleWindows << rect.from_dimension(ic.x0, ic.y0, clearanceLeft, ic.height)
+		end
+		if clearanceRight > oc.width
+			rect = Rectangle.new
+			possibleWindows << rect.from_dimension(lr.x2, ic.y0, clearanceRight, ic.height)
+		end
+
+		# if no possible windows, then return nil
+		return nil if possibleWindows.count == 0
+
+		# if window is possible, choose one in random
+		chosenWindow = possibleWindows[rand(possibleWindows.count)]
+		# to create subwindow, look at places where it will go out of bounds
+		xMax = chosenWindow.x2 - chosenWindow.x0 - oc.width
+		yMax = chosenWindow.y1 - chosenWindow.y0 - oc.height
+		return nil if (xMax <= 0) || (yMax <= 0)
+
+		# form the new rectangle and return
+		rect = Rectangle.new
+		rect.from_dimension(chosenWindow.x0 + rand(xMax), chosenWindow.y0 + rand(yMax), oc.width, oc.height)
+
+		# puts "chosenWindow: "
+		# chosenWindow.print
+		# puts "rect: "
+		# rect.print
+		return rect
 	end
 
 	# return a rectangle that can be cut from image according to outputDimension requirement
