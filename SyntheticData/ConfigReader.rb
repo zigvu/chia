@@ -6,7 +6,7 @@ class ConfigReader
 	attr_accessor :className, :runType, :maxThreads, :currentRunName
 	attr_accessor :inputBaseFolder, :outputBaseFolder, :tempFolder
 	attr_accessor :imageFolder, :annotationFolder, :outputFolder
-	attr_accessor :outputRectangleSize, :numberOfPatchPerImage
+	attr_accessor :outputRectangleSize, :numberOfPatchPerImage, :includeSubFolders, :hasAnnotations
 
 	def initialize(configFile)
 		y = YAML.load_file(configFile)
@@ -39,5 +39,7 @@ class ConfigReader
 		end
 
 		@numberOfPatchPerImage = Integer(runSetting['number_of_patch_per_image']) if runSetting['number_of_patch_per_image'] != nil
+		@includeSubFolders = runSetting['include_sub_folders'] == "yes" ? true : false
+		@hasAnnotations = runSetting['input_annotations_folder'] == "none" ? false : true
 	end
 end

@@ -15,10 +15,12 @@ runs:
     input_annotations_folder:                 annotations
     output_folder:                            positive_patch
   crop_negative_patch:
-    current:                                  false
+    current:                                  true
     input_images_folder:                      images
     input_annotations_folder:                 none
+    include_sub_folders:                      yes
     output_folder:                            negative_patch
+    number_of_patch_per_image:                5
   crop_negative_patch_from_positive:
     current:                                  false
     input_images_folder:                      images
@@ -26,7 +28,7 @@ runs:
     output_folder:                            negative_patch
     number_of_patch_per_image:                5
   test_positive_patch:
-    current:                                  true
+    current:                                  false
     input_images_folder:                      images
     input_annotations_folder:                 annotations
     output_folder:                            test_results
@@ -34,7 +36,9 @@ runs:
     current:                                  false
     input_images_folder:                      images
     input_annotations_folder:                 none
+    include_sub_folders:                      yes
     output_folder:                            test_results
+    number_of_patch_per_image:                5
   test_negative_patch_from_positive:
     current:                                  false
     input_images_folder:                      images

@@ -10,9 +10,7 @@ require_relative 'XMLReader.rb'
 require_relative 'ImageMagick.rb'
 
 class AnnotationExtractor
-	def initialize(xmlReader, className, tempFolder = '/tmp/magick', outputFolder = '/tmp/magick')
-		@xmlReader = xmlReader
-		@className = className
+	def initialize(tempFolder = '/tmp/magick', outputFolder = '/tmp/magick')
 		@tempFolder = tempFolder
 		@outputFolder = outputFolder
 
@@ -20,9 +18,54 @@ class AnnotationExtractor
 		FileUtils.mkdir_p(@outputFolder)
 
 		@imageMagick = ImageMagick.new
+	end
+
+	def initialize_from_xml(xmlReader, className)
+		@xmlReader = xmlReader
+		@className = className
 		@inputFileName = @xmlReader.imageFileName
 		@tempFileName = "#{@tempFolder}/#{File.basename(@inputFileName,"*")}_temp.png"
 		@xmlImageSize = @xmlReader.imageDimension
+	end
+
+	def initialize_from_folder(imageFileName)
+		@inputFileName = imageFileName
+	end
+
+	def test_negative_patch(outputRectangleSize, numberOfPatchPerImage)
+		basePolygon = Rectangle.new
+		basePolygon.from_dimension(0,0,0,0)
+		coordinateMath = CoordinateMath.new
+		
+		imageSize = @imageMagick.identify(@inputFileName)
+		outputFileName = "#{@outputFolder}/#{File.basename(@inputFileName,"*")}_neg_test.png"
+		FileUtils.cp(@inputFileName, outputFileName)
+		# get candidate patches for negative
+		negativePatch = coordinateMath.get_negative_candidate(imageSize, basePolygon, outputRectangleSize)
+		counter = 0
+		while negativePatch != nil && counter < numberOfPatchPerImage
+			@imageMagick.draw_poly(outputFileName, negativePatch, outputFileName, "Negative Crop #{counter}")
+			negativePatch = coordinateMath.get_negative_candidate(imageSize, basePolygon, outputRectangleSize)
+			counter = counter + 1
+		end
+	end
+
+	def crop_negative_patch(outputRectangleSize, numberOfPatchPerImage)
+		uniqueIdentfier = (0...8).map { (65 + rand(26)).chr }.join
+		basePolygon = Rectangle.new
+		basePolygon.from_dimension(0,0,0,0)
+		coordinateMath = CoordinateMath.new
+		
+		imageSize = @imageMagick.identify(@inputFileName)
+		# get candidate patches for negative
+		negativePatch = coordinateMath.get_negative_candidate(imageSize, basePolygon, outputRectangleSize)
+		counter = 0
+		while negativePatch != nil && counter < numberOfPatchPerImage
+			outputFileName = "#{@outputFolder}/#{File.basename(@inputFileName,"*")}_#{uniqueIdentfier}_#{counter}.png"
+			@imageMagick.crop(@inputFileName, negativePatch, outputFileName)
+			negativePatch = coordinateMath.get_negative_candidate(imageSize, basePolygon, outputRectangleSize)
+			counter = counter + 1
+		end
 	end
 
 	def test_negative_patch_from_positive(outputRectangleSize, numberOfPatchPerImage)
