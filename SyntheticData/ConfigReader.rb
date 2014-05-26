@@ -7,6 +7,7 @@ class ConfigReader
 	attr_accessor :inputBaseFolder, :outputBaseFolder, :tempFolder
 	attr_accessor :imageFolder, :annotationFolder, :outputFolder
 	attr_accessor :outputRectangleSize, :numberOfPatchPerImage, :includeSubFolders, :hasAnnotations
+	attr_accessor :datasetSplit
 
 	def initialize(configFile)
 		y = YAML.load_file(configFile)
@@ -41,5 +42,15 @@ class ConfigReader
 		@numberOfPatchPerImage = Integer(runSetting['number_of_patch_per_image']) if runSetting['number_of_patch_per_image'] != nil
 		@includeSubFolders = runSetting['include_sub_folders'] == "yes" ? true : false
 		@hasAnnotations = runSetting['input_annotations_folder'] == "none" ? false : true
+
+		# dataset split
+		trainPercent = y['dataset_split']['train'] == nil ? 0 : Float(y['dataset_split']['train'])
+		valPercent = y['dataset_split']['val'] == nil ? 0 : Float(y['dataset_split']['val'])
+		testPercent = y['dataset_split']['test'] == nil ? 0 : Float(y['dataset_split']['test'])
+		@datasetSplit = {
+			train: trainPercent,
+			val: valPercent,
+			test: testPercent
+		}
 	end
 end
