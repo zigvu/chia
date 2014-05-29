@@ -10,7 +10,7 @@ require_relative 'XMLReader.rb'
 require_relative 'ImageMagick.rb'
 
 class AnnotationExtractor
-	def initialize(tempFolder = '/tmp/magick', outputFolder = '/tmp/magick')
+	def initialize(tempFolder, outputFolder)
 		@tempFolder = tempFolder
 		@outputFolder = outputFolder
 
@@ -24,7 +24,7 @@ class AnnotationExtractor
 		@xmlReader = xmlReader
 		@className = className
 		@inputFileName = @xmlReader.imageFileName
-		@tempFileName = "#{@tempFolder}/#{File.basename(@inputFileName,"*")}_temp.png"
+		@tempFileName = "#{@tempFolder}/#{File.basename(@inputFileName,".*")}_temp.png"
 		@xmlImageSize = @xmlReader.imageDimension
 	end
 
@@ -38,7 +38,7 @@ class AnnotationExtractor
 		coordinateMath = CoordinateMath.new
 		
 		imageSize = @imageMagick.identify(@inputFileName)
-		outputFileName = "#{@outputFolder}/#{File.basename(@inputFileName,"*")}_neg_test.png"
+		outputFileName = "#{@outputFolder}/#{File.basename(@inputFileName,".*")}_neg_test.png"
 		FileUtils.cp(@inputFileName, outputFileName)
 		# get candidate patches for negative
 		negativePatch = coordinateMath.get_negative_candidate(imageSize, basePolygon, outputRectangleSize)
@@ -61,7 +61,7 @@ class AnnotationExtractor
 		negativePatch = coordinateMath.get_negative_candidate(imageSize, basePolygon, outputRectangleSize)
 		counter = 0
 		while negativePatch != nil && counter < numberOfPatchPerImage
-			outputFileName = "#{@outputFolder}/#{File.basename(@inputFileName,"*")}_#{uniqueIdentfier}_#{counter}.png"
+			outputFileName = "#{@outputFolder}/#{File.basename(@inputFileName,".*")}_#{uniqueIdentfier}_#{counter}.png"
 			@imageMagick.crop(@inputFileName, negativePatch, outputFileName)
 			negativePatch = coordinateMath.get_negative_candidate(imageSize, basePolygon, outputRectangleSize)
 			counter = counter + 1
@@ -69,7 +69,7 @@ class AnnotationExtractor
 	end
 
 	def test_negative_patch_from_positive(outputRectangleSize, numberOfPatchPerImage)
-		outputFileName = "#{@outputFolder}/#{File.basename(@inputFileName,"*")}_neg_test_from_pos.png"
+		outputFileName = "#{@outputFolder}/#{File.basename(@inputFileName,".*")}_neg_test_from_pos.png"
 
 		# draw original polygon
 		basePolygons = @xmlReader.get_rectangles(@className)
@@ -117,7 +117,7 @@ class AnnotationExtractor
 		counter = 0
 		negativePatch = coordinateMath.get_negative_candidate(@xmlImageSize, rectPatch, outputRectangleSize)
 		while negativePatch != nil && counter < numberOfPatchPerImage
-			outputFileName = "#{@outputFolder}/#{File.basename(@inputFileName,"*")}_#{uniqueIdentfier}_#{counter}.png"
+			outputFileName = "#{@outputFolder}/#{File.basename(@inputFileName,".*")}_#{uniqueIdentfier}_#{counter}.png"
 			@imageMagick.crop(@inputFileName, negativePatch, outputFileName)
 			negativePatch = coordinateMath.get_negative_candidate(@xmlImageSize, rectPatch, outputRectangleSize)
 			counter = counter + 1
@@ -125,7 +125,7 @@ class AnnotationExtractor
 	end
 
 	def test_positive_patch(outputRectangleSize)
-		outputFileName = "#{@outputFolder}/#{File.basename(@inputFileName,"*")}_pos_test.png"
+		outputFileName = "#{@outputFolder}/#{File.basename(@inputFileName,".*")}_pos_test.png"
 		FileUtils.cp(@inputFileName, outputFileName)
 
 		# test image sizes:
@@ -162,8 +162,70 @@ class AnnotationExtractor
 			squarePatch = coordinateMath.poly_to_square(@xmlImageSize, basePolygon)
 			cropPatch = coordinateMath.resize_to_match(@xmlImageSize, squarePatch, outputRectangleSize)
 
-			outputFileName = "#{@outputFolder}/#{File.basename(@inputFileName,"*")}_#{uniqueIdentfier}_#{index}.png"
+			outputFileName = "#{@outputFolder}/#{File.basename(@inputFileName,".*")}_#{uniqueIdentfier}_#{index}.png"
 			@imageMagick.crop(@inputFileName, cropPatch, outputFileName)
+		end
+	end
+
+	def test_sliding_window(outputRectangleSize, 
+			slidingWindowStrideX,
+			slidingWindowStrideY,
+			downScaleTimes,
+			upScaleTimes)
+
+		coordinateMath = CoordinateMath.new
+		originalSize = @imageMagick.identify(@inputFileName)
+
+		for scaleTimes in 0..downScaleTimes
+			scale = (0.5)**scaleTimes
+			scaledImageSize = Rectangle.new
+			scaledImageSize.from_dimension(0,0, 
+				Integer(originalSize.width * scale), Integer(originalSize.height * scale))
+
+			# make sure new scale is at least as big as outputRectangleSize
+			if scaledImageSize.has_larger_area_than?(outputRectangleSize)
+				outputFileName = "#{@outputFolder}/#{File.basename(@inputFileName,".*")}_sliding_test_#{scaleTimes}.png"
+				@imageMagick.resize(@inputFileName, scaledImageSize, outputFileName)
+
+				slidingWindowBoxes = coordinateMath.sliding_window_boxes(
+					scaledImageSize, outputRectangleSize, 
+					slidingWindowStrideX, slidingWindowStrideY)
+				slidingWindowBoxes.each_with_index do |bbox, index|
+					@imageMagick.draw_poly(outputFileName, bbox, outputFileName, "#{index}")
+				end
+			end
+		end
+	end
+
+	def crop_sliding_window(outputRectangleSize, 
+			slidingWindowStrideX,
+			slidingWindowStrideY,
+			downScaleTimes,
+			upScaleTimes)
+
+		coordinateMath = CoordinateMath.new
+		originalSize = @imageMagick.identify(@inputFileName)
+
+		for scaleTimes in 0..downScaleTimes
+			scale = (0.5)**scaleTimes
+			scaledImageSize = Rectangle.new
+			scaledImageSize.from_dimension(0,0, 
+				Integer(originalSize.width * scale), Integer(originalSize.height * scale))
+
+			# make sure new scale is at least as big as outputRectangleSize
+			if scaledImageSize.has_larger_area_than?(outputRectangleSize)
+				tempFileName = "#{@tempFolder}/#{File.basename(@inputFileName,".*")}_sliding_#{scaleTimes}.png"
+				@imageMagick.resize(@inputFileName, scaledImageSize, tempFileName)
+
+				slidingWindowBoxes = coordinateMath.sliding_window_boxes(
+					scaledImageSize, outputRectangleSize, 
+					slidingWindowStrideX, slidingWindowStrideY)
+				slidingWindowBoxes.each_with_index do |bbox, index|
+					outputFileName = "#{@outputFolder}/#{File.basename(tempFileName,".*")}_#{index}.png"
+					@imageMagick.crop(tempFileName, bbox, outputFileName)
+				end
+				FileUtils.rm_rf(tempFileName)
+			end
 		end
 	end
 end

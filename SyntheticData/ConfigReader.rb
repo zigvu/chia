@@ -8,6 +8,7 @@ class ConfigReader
 	attr_accessor :imageFolder, :annotationFolder, :outputFolder
 	attr_accessor :outputRectangleSize, :numberOfPatchPerImage, :includeSubFolders, :hasAnnotations
 	attr_accessor :datasetSplit
+	attr_accessor :slidingWindowStrideX, :slidingWindowStrideY, :downScaleTimes, :upScaleTimes
 
 	def initialize(configFile)
 		y = YAML.load_file(configFile)
@@ -52,5 +53,12 @@ class ConfigReader
 			val: valPercent,
 			test: testPercent
 		}
+
+		# sliding window
+		slidingWindow = y['sliding_window']
+		@slidingWindowStrideX = Integer(slidingWindow['x_stride'])
+		@slidingWindowStrideY = Integer(slidingWindow['y_stride'])
+		@downScaleTimes = Integer(slidingWindow['down_scale_times'])
+		@upScaleTimes = Integer(slidingWindow['up_scale_times'])
 	end
 end

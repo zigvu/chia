@@ -25,6 +25,10 @@ if __FILE__ == $0
 	config = ARGV[0]
 
 	configR = ConfigReader.new(config)
+	FileUtils.rm_rf(configR.tempFolder)
+	FileUtils.mkdir_p(configR.tempFolder)
+	FileUtils.mkdir_p(configR.outputFolder)
+
 	threads = []
 
 	if configR.hasAnnotations
@@ -54,6 +58,7 @@ if __FILE__ == $0
 					puts "Starting: #{File.basename(imageFileName,"*")}"
 					singleFileOperation = SingleFileOperation.new(configReader)
 					singleFileOperation.run_non_annotated_file(imageFileName)
+					
 					puts "Done: #{File.basename(imageFileName)}"
 				rescue Exception => e
 					puts "Error: #{File.basename(imageFileName)}: #{e.message}"

@@ -150,4 +150,29 @@ class CoordinateMath
 		end
 		return rect
 	end
+
+	def sliding_window_boxes(imageConstraintRect, outputRequirementRect, xStride, yStride)
+		slidingWindowBoxes = []
+		ic = imageConstraintRect
+		oc = outputRequirementRect
+
+		xSteps = Integer((ic.x2 - ic.x0 - 1) * 1.0 / xStride)
+		ySteps = Integer((ic.y1 - ic.y0 - 1) * 1.0 / yStride)
+
+		for xStep in 0..(xSteps - 1)
+			for yStep in 0..(ySteps - 1)
+				xStart = xStep * xStride
+				yStart = yStep * yStride
+
+				# if going out of bounds
+				xStart = ic.x2 - oc.width  if (xStart + oc.width)  > ic.x2
+				yStart = ic.y1 - oc.height if (yStart + oc.height) > ic.y1
+				
+				rect = Rectangle.new
+				rect.from_dimension(xStart, yStart, oc.width, oc.height)
+				slidingWindowBoxes << rect
+			end
+		end
+		return slidingWindowBoxes
+	end
 end
