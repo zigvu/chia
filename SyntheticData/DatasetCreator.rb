@@ -72,6 +72,66 @@ class DatasetCreator
 		write_arr_to_file("#{@outputFolder}/label_mappings.txt", dataLabelMappingArr)
 	end
 
+	# if files are already placed in train test buckets
+	# assume that @inputFolder has test and train folders with different
+	# classes as subfolders to those
+	def create_label_for_caffe
+		dataLabel = 0
+		dataLabelMappingArr = []
+		dataLabelMappingH = {}
+		trainLabelArr = []
+		testLabelArr = []
+
+		Dir["#{@inputFolder}/train/*"].each do |folderPath|
+			folderName = File.basename(folderPath)
+			outputFolderTrain = "#{@trainFolder}/#{folderName}"
+
+			FileUtils.mkdir_p(outputFolderTrain)
+			allFiles = Dir["#{folderPath}/*.png"]
+			allFiles.shuffle!
+
+			allFiles.each do |fname|
+				fBaseName = File.basename(fname)
+				imageLabel = "#{folderName}/#{fBaseName} #{dataLabel}"
+
+				puts "#{imageLabel}"
+				trainLabelArr << "#{imageLabel}"
+				FileUtils.cp(fname, outputFolderTrain)
+			end
+			dataLabelMappingH.merge!({:"#{folderName}" => dataLabel})
+			dataLabelMappingArr << "#{folderName} #{dataLabel}"
+			dataLabel = dataLabel + 1
+		end
+
+		Dir["#{@inputFolder}/test/*"].each do |folderPath|
+			folderName = File.basename(folderPath)
+			outputFolderTest = "#{@testFolder}/#{folderName}"
+
+			FileUtils.mkdir_p(outputFolderTest)
+			allFiles = Dir["#{folderPath}/*.png"]
+			allFiles.shuffle!
+
+			dataLabel = dataLabelMappingH[:"#{folderName}"]
+			if dataLabel == nil
+				raise RuntimeError, "Class #{folderName} found in train but not in test"
+			end
+
+			allFiles.each do |fname|
+				fBaseName = File.basename(fname)
+				imageLabel = "#{folderName}/#{fBaseName} #{dataLabel}"
+
+				puts "#{imageLabel}"
+				testLabelArr << "#{imageLabel}"
+				FileUtils.cp(fname, outputFolderTest)
+			end
+		end
+
+		# save label files:
+		write_arr_to_file("#{@trainFolder}/train_labels.txt", trainLabelArr)
+		write_arr_to_file("#{@testFolder}/test_labels.txt", testLabelArr)
+		write_arr_to_file("#{@outputFolder}/label_mappings.txt", dataLabelMappingArr)
+	end
+
 	def write_arr_to_file(filename, array)
 		File.open(filename, 'w') do |file|
 			array.each do |ta|
