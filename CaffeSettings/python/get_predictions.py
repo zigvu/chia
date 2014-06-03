@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 """
-get_predictions.py is a clone of classify.py that spits out predictions per file.
+get_predictions.py is a clone of classify.py that spits out predictions per folder.
 
-By default it configures and runs the Logo2 model.
+By default it configures and runs the Logo model.
 """
 import numpy as np
 import os
@@ -103,8 +103,8 @@ def main(argv):
         labelFile = open(args.output_file + ".csv",'w')
         wholeFileList = glob.glob(args.input_file + '/*.' + args.ext)
         oldI = 0
-        # batches of 100 each
-        batchSize = 400
+        # larger batch size consumes more memory - about 1.5GB/100 files
+        batchSize = 500
         
         start = time.time()
         for i in xrange(batchSize, len(wholeFileList) + batchSize + 1, batchSize):
@@ -118,15 +118,12 @@ def main(argv):
                 # Classify.
                 predictions = classifier.predict(inputs, not args.center_only)
 
-                # Save numpy
-                np.save(args.output_file, predictions)
-
                 # Expand numpy and save labels in file as well
                 for idx, im_f in enumerate(fileList):
                     curScores = predictions[idx].tolist()
                     curMax = max(curScores)
                     curClass = curScores.index(curMax)
-                    printStr = basename(im_f) + "\t" + repr(curMax) + "\t" + repr(curClass)
+                    printStr = basename(im_f) + "," + repr(curMax) + "," + repr(curClass)
                     labelFile.write(printStr + "\n")
                     print printStr
         labelFile.close()

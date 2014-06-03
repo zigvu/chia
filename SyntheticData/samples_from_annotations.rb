@@ -36,7 +36,7 @@ if __FILE__ == $0
 		puts "Usage: ./samples_from_annotation.rb config.yaml inputBaseFolder outputBaseFolder"
 		puts " "
 		puts "       inputBaseFolder is expected to have annotation and images subfolder with names"
-		puts "       specified in config.yaml file."
+		puts "       specified in config.yaml file if we are requiring annotation extraction"
 		exit
 	end
 
