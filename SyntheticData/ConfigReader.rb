@@ -7,7 +7,7 @@ class ConfigReader
 	attr_accessor :inputBaseFolder, :outputBaseFolder, :tempFolder
 	attr_accessor :imageFolder, :annotationFolder, :outputFolder
 	attr_accessor :outputRectangleSize, :numberOfPatchPerImage, :includeSubFolders, :hasAnnotations
-	attr_accessor :datasetSplit
+	attr_accessor :datasetTypeTrainTest, :datasetTypeSplitData, :datasetTypeTestOnly, :datasetSplit
 	attr_accessor :slidingWindowStrideX, :slidingWindowStrideY, :downScaleTimes, :upScaleTimes
 
 	def initialize(configFile)
@@ -45,9 +45,14 @@ class ConfigReader
 		@hasAnnotations = runSetting['input_annotations_folder'] == "none" ? false : true
 
 		# dataset split
-		trainPercent = y['dataset_split']['train'] == nil ? 0 : Float(y['dataset_split']['train'])
-		valPercent = y['dataset_split']['val'] == nil ? 0 : Float(y['dataset_split']['val'])
-		testPercent = y['dataset_split']['test'] == nil ? 0 : Float(y['dataset_split']['test'])
+		datasetSetup = y['dataset_setup']
+		@datasetTypeTrainTest = datasetSetup['dataset_type'] == 'train_test'
+		@datasetTypeSplitData = datasetSetup['dataset_type'] == 'split_data'
+		@datasetTypeTestOnly = datasetSetup['dataset_type'] == 'test_only'
+
+		trainPercent = datasetSetup['train'] == nil ? 0 : Float(datasetSetup['train'])
+		valPercent = datasetSetup['val'] == nil ? 0 : Float(datasetSetup['val'])
+		testPercent = datasetSetup['test'] == nil ? 0 : Float(datasetSetup['test'])
 		@datasetSplit = {
 			train: trainPercent,
 			val: valPercent,

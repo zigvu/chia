@@ -8,6 +8,13 @@ if __FILE__ == $0
 		puts "Create data set for caffe training/testing"
 		puts " "
 		puts "Usage: ./create_dataset_split.rb config.yaml inputFolder outputFolder"
+		puts " "
+		puts "       If the 'dataset_type' is set to 'split_data' in config file, then each folder"
+		puts "       within the data folder is treated as a separate class and the dataset is"
+		puts "       divided into train/val/test portions."
+		puts "       If the 'dataset_type' mode is set to 'train_test' in config file, then two"
+		puts "       folders - train and test - are expected inside inputFolder and the subfolders"
+		puts "       of these are assumed to be separate classes."
 		exit
 	end
 
@@ -16,8 +23,17 @@ if __FILE__ == $0
 	outputFolder = ARGV[2]
 
 	configReader = ConfigReader.new(config)
-	datasetSplit = configReader.datasetSplit
+	outputRectangleSize = configReader.outputRectangleSize
+	dc = DatasetCreator.new(inputFolder, outputFolder, outputRectangleSize)
 
-	dc = DatasetCreator.new(inputFolder, outputFolder)
-	dc.split_for_caffe(datasetSplit[:train], datasetSplit[:val], datasetSplit[:test])
+	if configReader.datasetTypeSplitData
+		datasetSplit = configReader.datasetSplit	
+		dc.split_for_caffe(datasetSplit[:train], datasetSplit[:val], datasetSplit[:test])
+	elsif configReader.datasetTypeTrainTest
+		dc.create_label_for_caffe
+	elsif configReader.datasetTypeTestOnly
+		raise RuntimeError, "Testing is currently done using python script... exiting"
+	else
+		raise RuntimeError, "The config specified in config.yaml hasn't been implemented"
+	end
 end

@@ -25,14 +25,17 @@ class CoordinateMath
 		xMinMax = [p.x0, p.x1, p.x2, p.x3].minmax
 		yMinMax = [p.y0, p.y1, p.y2, p.y3].minmax
 		widthHeight = [xMinMax[1] - xMinMax[0], yMinMax[1] - yMinMax[0]].max
-		xNew = Integer(xMinMax[0] + (xMinMax[1] - xMinMax[0])/2 - widthHeight/2)
-		yNew = Integer(yMinMax[0] + (yMinMax[1] - yMinMax[0])/2 - widthHeight/2)
 
-		xNew = 0 if xNew < 0; xNew = imageConstraintRect.x2 if xNew > imageConstraintRect.x2
-		yNew = 0 if yNew < 0; yNew = imageConstraintRect.y1 if yNew > imageConstraintRect.y1
+		xCenter = Integer(xMinMax[0] + (xMinMax[1] - xMinMax[0])/2)
+		yCenter = Integer(yMinMax[0] + (yMinMax[1] - yMinMax[0])/2)
+
+		xCenter = 1 if xCenter < 1
+		xCenter = imageConstraintRect.x2 - 1 if xCenter > imageConstraintRect.x2 - 1
+		yCenter = 1 if yCenter < 1
+		yCenter = imageConstraintRect.y1 - 1 if yCenter > imageConstraintRect.y1 - 1
 
 		minSquare = Rectangle.new
-		minSquare.from_dimension(xNew, yNew, widthHeight, widthHeight)
+		minSquare.from_dimension(xCenter, yCenter, 1, 1)
 		squareDimension = Rectangle.new
 		squareDimension.from_dimension(0, 0, widthHeight, widthHeight)
 		square = resize_to_match(imageConstraintRect, minSquare, squareDimension)
@@ -91,6 +94,36 @@ class CoordinateMath
 		return rect
 	end
 
+	def get_patch_candidates(imageConstraintRect, inputRect, outputRequirementRect, 
+		numOfCandidates, minPixelMove)
+		patchCandidates = []
+		ic = imageConstraintRect
+		ir = inputRect
+		oc = outputRequirementRect
+
+		# no matter what, get at least the first patch
+		patchCandidates << resize_to_match(imageConstraintRect, inputRect, outputRequirementRect)
+
+		# keep inputRect in top left corner
+		leftPixelMove = Integer((ir.x0 - ic.x0) * 1.0 / numOfCandidates)
+		if leftPixelMove > minPixelMove
+			for leftMove in 1..numOfCandidates
+				newImgConstr = Rectangle.new
+				newImgConstr.from_points(
+					ir.x0 - leftMove * leftPixelMove, ic.y0,
+					ir.x1 - leftMove * leftPixelMove, ic.y1,
+					ic.x2 - leftMove * leftPixelMove, ic.y2,
+					ic.x3 - leftMove * leftPixelMove, ic.y3)
+				newImgConstr.print
+				patchCandidates << resize_to_match(newImgConstr, inputRect, outputRequirementRect)
+			end
+		end
+
+		patchCandidates.each do |patch|
+			#patch.print
+		end
+	end
+
 	# return a rectangle that can be cut from image according to outputDimension requirement
 	# Assumes: all inputs are Rectangles (and not parallelograms or other types of polygons)
 	# Assumes: inputRect and outputRequirementRect have same aspect ratio
@@ -117,13 +150,14 @@ class CoordinateMath
 				# pixel by pixel increase
 				if rect.x0 == imageConstraintRect.x0
 					if rect.x2 == imageConstraintRect.x2
+						x0 = rect.x0; x2 = rect.x2
 						break
 					else
 						x0 = rect.x0; x2 = rect.x2 + 2
 					end
 				else
 					if rect.x2 == imageConstraintRect.x2
-						x0 = rect.x0 - 2
+						x0 = rect.x0 - 2; x2 = rect.x2
 					else
 						x0 = rect.x0 - 1; x2 = rect.x2 + 1
 					end
@@ -132,13 +166,14 @@ class CoordinateMath
 
 				if rect.y0 == imageConstraintRect.y0
 					if rect.y1 == imageConstraintRect.y1
+						y0 = rect.y0; y1 = rect.y1
 						break
 					else
 						y0 = rect.y0; y1 = rect.y1 + 2
 					end
 				else
 					if rect.y1 == imageConstraintRect.y1
-						y0 = rect.y0 - 2
+						y0 = rect.y0 - 2; y1 = rect.y1
 					else
 						y0 = rect.y0 - 1; y1 = rect.y1 + 1
 					end

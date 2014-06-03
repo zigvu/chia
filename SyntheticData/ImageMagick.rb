@@ -11,7 +11,7 @@ class ImageMagick
 	def resize(inputFileName, rectangle, outputFileName)
 		r = rectangle
 		bash("convert #{inputFileName} \
-			-resize #{r.width}x#{r.height} \
+			-resize #{r.width}x#{r.height}\! \
 			#{outputFileName}")
 	end
 

@@ -1,7 +1,7 @@
 # class we are interested in
 class_name: adidas-long
 
-# for parallel processing
+# for parallel processing - currently, it uses all processors
 max_number_of_threads: 2
 
 # base folders to which the folder names below will be concatenated
@@ -28,12 +28,12 @@ runs:
     output_folder:                            negative_patch_from_positive
     number_of_patch_per_image:                5
   crop_sliding_window:
-    current:                                  true
+    current:                                  false
     input_images_folder:                      images
     input_annotations_folder:                 none
     output_folder:                            sliding_window
   test_positive_patch:
-    current:                                  false
+    current:                                  true
     input_images_folder:                      images
     input_annotations_folder:                 annotations
     output_folder:                            test_results
@@ -76,9 +76,14 @@ sliding_window:
 # synthetic data setting
 # NOT DONE YET
 
-# data set split for training/testing - has to add up to 1.0
-dataset_split:
-  train: 0.7
-  validation: 0.0
-  test: 0.3
+
+# dataset set up
+dataset_setup:
+  # dataset_type can be 'train_test', 'split_data', 'test_only'
+  dataset_type:        test_only
+  # data set split for training/testing - has to add up to 1.0
+  dataset_split:
+    train: 0.7
+    validation: 0.0
+    test: 0.3
 

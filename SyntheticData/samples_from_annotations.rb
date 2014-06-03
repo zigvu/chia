@@ -16,7 +16,7 @@ require_relative 'SingleFileOperation.rb'
 
 if __FILE__ == $0
 	if ARGV.count < 1
-		puts "Crop files from annotation for StructSVM training"
+		puts "Crop files from annotation for network training"
 		puts " "
 		puts "Usage: ./samples_from_annotation.rb config.yaml"
 		exit
@@ -33,9 +33,9 @@ if __FILE__ == $0
 
 	if configR.hasAnnotations
 		Dir["#{configR.annotationFolder}/*.xml"].each do |fname|
-			# configReader = configR
-			# xmlFileName = fname
-			threads << Thread.new(configR, fname) { |configReader, xmlFileName|
+			configReader = configR
+			xmlFileName = fname
+			#threads << Thread.new(configR, fname) { |configReader, xmlFileName|
 				begin
 					puts "Starting: #{File.basename(xmlFileName,"*")}"
 					singleFileOperation = SingleFileOperation.new(configReader)
@@ -44,7 +44,7 @@ if __FILE__ == $0
 				rescue Exception => e
 					puts "Error: #{File.basename(xmlFileName)}: #{e.message}"
 				end
-			}
+			#}
 		end
 	else
 		inputFolder = configR.imageFolder
