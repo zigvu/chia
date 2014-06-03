@@ -18,7 +18,7 @@ testFolderBaseName=$(basename "$testFolderName")
 $PYTHON/get_predictions.py --model_def logo_deploy.prototxt \
 		--pretrained_model $FINAL_MODEL_NAME \
 		--gpu \
-		--mean_file $PYTHON/caffe/imagenet/ilsvrc_2012_mean.npy
+		--mean_file $PYTHON/caffe/imagenet/ilsvrc_2012_mean.npy \
 		$testFolderName $testFolderBaseName
 
 echo "Done."
