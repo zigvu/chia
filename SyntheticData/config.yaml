@@ -2,12 +2,10 @@
 class_name: adidas-long
 
 # for parallel processing - currently, it uses all processors
-max_number_of_threads: 2
+multi_threaded: true
 
-# base folders to which the folder names below will be concatenated
-input_base_folder: /home/evan/Vision/Scripts/TextGeneration/temp/annotation_matlab/input
-output_base_folder: /home/evan/Vision/Scripts/TextGeneration/temp/annotation_matlab/output
-
+# the following folders are subfolders of inputBaseFolder and outputBaseFolder
+# specified from command line
 runs:
   crop_positive_patch:
     current:                                  false

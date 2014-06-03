@@ -3,20 +3,20 @@ require 'yaml'
 require_relative 'Rectangle.rb'
 
 class ConfigReader
-	attr_accessor :className, :runType, :maxThreads, :currentRunName
+	attr_accessor :className, :multiThreaded, :currentRunName
 	attr_accessor :inputBaseFolder, :outputBaseFolder, :tempFolder
 	attr_accessor :imageFolder, :annotationFolder, :outputFolder
 	attr_accessor :outputRectangleSize, :numberOfPatchPerImage, :includeSubFolders, :hasAnnotations
 	attr_accessor :datasetTypeTrainTest, :datasetTypeSplitData, :datasetTypeTestOnly, :datasetSplit
 	attr_accessor :slidingWindowStrideX, :slidingWindowStrideY, :downScaleTimes, :upScaleTimes
 
-	def initialize(configFile)
+	def initialize(configFile, inputBaseFolder, outputBaseFolder)
 		y = YAML.load_file(configFile)
 		@className = y['class_name']
-		@maxThreads = y['max_number_of_threads']
+		@multiThreaded = y['multi_threaded'] == 'true'
 
-		@inputBaseFolder = y['input_base_folder']
-		@outputBaseFolder = y['output_base_folder']
+		@inputBaseFolder = inputBaseFolder
+		@outputBaseFolder = outputBaseFolder
 		@tempFolder = y['tempfs']
 
 		y['runs'].each do |k, v|
