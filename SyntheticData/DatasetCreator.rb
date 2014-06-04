@@ -1,4 +1,5 @@
 require 'fileutils'
+require_relative 'ImageMagick.rb'
 
 class DatasetCreator
 	# each folder in inputFolder is assumed to be a separate class

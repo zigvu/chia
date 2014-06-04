@@ -22,7 +22,7 @@ if __FILE__ == $0
 	inputFolder = ARGV[1]
 	outputFolder = ARGV[2]
 
-	configReader = ConfigReader.new(config)
+	configReader = ConfigReader.new(config, inputFolder, outputFolder)
 	outputRectangleSize = configReader.outputRectangleSize
 	dc = DatasetCreator.new(inputFolder, outputFolder, outputRectangleSize)
 

@@ -78,7 +78,7 @@ sliding_window:
 # dataset set up
 dataset_setup:
   # dataset_type can be 'train_test', 'split_data', 'test_only'
-  dataset_type:        test_only
+  dataset_type:        train_test
   # data set split for training/testing - has to add up to 1.0
   dataset_split:
     train: 0.7
