@@ -8,12 +8,18 @@ class ConfigReader
 	attr_accessor :imageFolder, :annotationFolder, :outputFolder
 	attr_accessor :outputRectangleSize, :numberOfPatchPerImage, :includeSubFolders, :hasAnnotations
 	attr_accessor :datasetTypeTrainTest, :datasetTypeSplitData, :datasetTypeTestOnly, :datasetSplit
-	attr_accessor :slidingWindowStrideX, :slidingWindowStrideY, :downScaleTimes, :upScaleTimes, :scaleFactor
+	
+	# sliding window
+	attr_accessor :sw_isTest, :sw_StrideX, :sw_StrideY, :sw_downScaleTimes, :sw_upScaleTimes, :sw_scaleFactor
+	attr_accessor :sw_frameDensity, :sw_PatchFolder, :sw_AnnotationFolder
+
+	# root of other repos
+	attr_accessor :khajuriRoot, :caffeRoot
 
 	def initialize(configFile, inputBaseFolder, outputBaseFolder)
 		y = YAML.load_file(configFile)
 		@className = y['class_name']
-		@multiThreaded = y['multi_threaded'] == 'true'
+		@multiThreaded = y['multi_threaded'] == true
 
 		@inputBaseFolder = inputBaseFolder
 		@outputBaseFolder = outputBaseFolder
@@ -59,12 +65,21 @@ class ConfigReader
 			test: testPercent
 		}
 
+
 		# sliding window
 		slidingWindow = y['sliding_window']
-		@slidingWindowStrideX = Integer(slidingWindow['x_stride'])
-		@slidingWindowStrideY = Integer(slidingWindow['y_stride'])
-		@downScaleTimes = Integer(slidingWindow['down_scale_times'])
-		@upScaleTimes = Integer(slidingWindow['up_scale_times'])
-		@scaleFactor = Float(slidingWindow['scale_factor']).round(1)
+		@sw_isTest = slidingWindow['is_test'] == true
+		@sw_StrideX = Integer(slidingWindow['scaling']['x_stride'])
+		@sw_StrideY = Integer(slidingWindow['scaling']['y_stride'])
+		@sw_downScaleTimes = Integer(slidingWindow['scaling']['down_scale_times'])
+		@sw_upScaleTimes = Integer(slidingWindow['scaling']['up_scale_times'])
+		@sw_scaleFactor = Float(slidingWindow['scaling']['scale_factor']).round(1)
+
+		@sw_frameDensity = Integer(slidingWindow['frame_density'])
+		@sw_PatchFolder = slidingWindow['folders']['patch_output']
+		@sw_AnnotationFolder = slidingWindow['folders']['annotation_output']
+
+		@khajuriRoot = y['khajur_root']
+		@caffeRoot = y['caffe_root']
 	end
 end

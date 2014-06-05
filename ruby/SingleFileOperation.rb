@@ -49,22 +49,6 @@ class SingleFileOperation
 			ax.crop_negative_patch(@configReader.outputRectangleSize, 
 				@configReader.numberOfPatchPerImage)
 				
-		elsif @configReader.currentRunName == 'test_sliding_window'
-			ax.test_sliding_window(@configReader.outputRectangleSize, 
-				@configReader.slidingWindowStrideX,
-				@configReader.slidingWindowStrideY,
-				@configReader.downScaleTimes,
-				@configReader.upScaleTimes,
-				@configReader.scaleFactor)
-
-		elsif @configReader.currentRunName == 'crop_sliding_window'
-			ax.crop_sliding_window(@configReader.outputRectangleSize, 
-				@configReader.slidingWindowStrideX,
-				@configReader.slidingWindowStrideY,
-				@configReader.downScaleTimes,
-				@configReader.upScaleTimes,
-				@configReader.scaleFactor)
-				
 		else
 			puts "Error: Function not yet implemented"
 		end

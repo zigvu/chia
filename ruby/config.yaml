@@ -2,7 +2,12 @@
 class_name: adidas-long
 
 # for parallel processing - currently, it uses all processors
-multi_threaded: true
+multi_threaded: false
+
+# temporary location for khajuri and caffe paths - will get
+# these from environment variable in the future
+khajur_root: /home/ubuntu/khajuri
+caffe_root: /home/ubuntu/chia/caffe
 
 # the following folders are subfolders of inputBaseFolder and outputBaseFolder
 # specified from command line
@@ -65,6 +70,12 @@ output_height:   256
 
 # original size is run no matter what
 sliding_window:
+  is_test:                                    false
+  folders:
+    patch_output:                             patches
+    annotation_output:                        annotations
+  frame_density:                              5
+  scaling:
     x_stride:                                 128
     y_stride:                                 128
     down_scale_times:                         3

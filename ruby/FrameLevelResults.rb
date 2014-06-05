@@ -7,6 +7,10 @@ class FrameLevelResults
 		@patchLevelResults = patchLevelResults
 	end
 
+	def get_frame_filename
+		return @patchJSON["frame_filename"]
+	end
+
 	# currently, get the max patch score in all scales for predClass
 	def get_frame_level_detections(predClass)
 		maxScore = 0
