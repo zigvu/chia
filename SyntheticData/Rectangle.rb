@@ -53,6 +53,10 @@ class Rectangle
 		return @width == @height
 	end
 
+	def to_hash
+		return {x: @x0, y: @y0, width: @width, height: @height}
+	end
+
 	def print
 		puts "#{@x0},#{@y0}   #{@x1},#{@y1}   #{@x2},#{@y2}   #{@x3},#{@y3}; w:#{@width} h:#{@height}"
 	end

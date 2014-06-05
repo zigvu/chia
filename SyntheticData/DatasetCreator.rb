@@ -152,6 +152,6 @@ class DatasetCreator
 
 	def convert_copy_image(inputFileName, outputFolder)
 		outputFileName = "#{outputFolder}/#{File.basename(inputFileName)}"
-		@imageMagick.resize(inputFileName, @outputRectangleSize, outputFileName)
+		@imageMagick.resize_exact(inputFileName, @outputRectangleSize, outputFileName)
 	end
 end

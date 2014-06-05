@@ -38,7 +38,7 @@ class SingleFileOperation
 
 	def run_non_annotated_file(imageFileName)
 		ax = AnnotationExtractor.new(@configReader.tempFolder, @configReader.outputFolder)
-		ax.initialize_from_folder(imageFileName)
+		ax.initialize_from_file(imageFileName)
 
 		# perform task
 		if @configReader.currentRunName == 'test_negative_patch'
@@ -54,14 +54,16 @@ class SingleFileOperation
 				@configReader.slidingWindowStrideX,
 				@configReader.slidingWindowStrideY,
 				@configReader.downScaleTimes,
-				@configReader.upScaleTimes)
+				@configReader.upScaleTimes,
+				@configReader.scaleFactor)
 
 		elsif @configReader.currentRunName == 'crop_sliding_window'
 			ax.crop_sliding_window(@configReader.outputRectangleSize, 
 				@configReader.slidingWindowStrideX,
 				@configReader.slidingWindowStrideY,
 				@configReader.downScaleTimes,
-				@configReader.upScaleTimes)
+				@configReader.upScaleTimes,
+				@configReader.scaleFactor)
 				
 		else
 			puts "Error: Function not yet implemented"
