@@ -23,6 +23,10 @@ if __FILE__ == $0
 	modelFile = ARGV[2]
 	outputFolder = ARGV[3]
 
+	configReader = ConfigReader.new(configFile, 'notUsed', 'notUsed')
+	commonUtils = CommonUtils.new
+
+
 	# set folder names
 	frameFolder = "#{outputFolder}/#{File.basename(inputVideo,'.*')}"
 	FileUtils.mkdir_p(frameFolder)
@@ -35,10 +39,6 @@ if __FILE__ == $0
 	negativePatchFolder = "#{outputFolder}/classified/negativePatch"
 	FileUtils.mkdir_p(negativeFrameFolder)
 	FileUtils.mkdir_p(positivePatchFolder)
-
-	configReader = ConfigReader.new(configFile, 'notUsed', 'notUsed')
-	commonUtils = CommonUtils.new
-
 	
 
 	# first, extract all frames
