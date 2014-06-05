@@ -11,7 +11,7 @@ class CommonUtils
 
 	def bash(command)
 	  escaped_command = Shellwords.escape(command)
-	  IO.popen "#{escaped_command}" do |fd|
+	  IO.popen "bash -c #{escaped_command}" do |fd|
 		  until fd.eof?
 		    puts fd.readline
 		  end
