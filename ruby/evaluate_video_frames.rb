@@ -67,6 +67,7 @@ if __FILE__ == $0
 	resultFileName = "patch_result"
 	getPredictionsCommand = "#{caffePythonPath}/get_predictions.py" +
 			" --model_def #{modelBasePath}/logo_deploy.prototxt" +
+			" --pretrained_model #{modelFile}" +
 			" --gpu" +
 			" --mean_file #{caffePythonPath}/caffe/imagenet/ilsvrc_2012_mean.npy" +
 			" #{patchFolder} #{resultFileName}"
