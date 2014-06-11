@@ -1,0 +1,28 @@
+File Naming Convention
+----------------------
+
+Positive Patch Generation:
+* Each annotated object class has its own folder
+* The original input file name is preserved - this typically has the video id
+* Suffix:
+  - scl: two digits indicating the scale by which the original image was resized
+  - crp: two digits - first digit indicates the numerical order of bounding box if there are multiple annotations of the same object present in the image; second digit indicates the jiggle number for the crop
+
+
+Negative Patch Generation:
+* The original input file name is preserved - this typically has the video id
+* Suffix:
+  - np: counter indicating the order in which this patch was created from this image file
+
+
+Negative Patch From Positive Generation:
+* The original input file name is preserved - this typically has the video id
+* Suffix:
+  - npfp: counter indicating the order in which this patch was created from this image file
+
+
+Sliding Window Generation:
+* The original input file name is preserved - this typically has the video id
+* Suffix:
+  - scl: two digits indicating the scale by which the original image was resized
+  - idx: index of the sliding window within the original image - goes from top->down, left->right

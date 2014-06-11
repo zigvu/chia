@@ -33,7 +33,7 @@ class SlidingWindowCreator
 		@imageMagick = ImageMagick.new
 	end
 
-	def generate_sliding_window
+	def generate_sliding_windows
 		threads = []
 		Dir["#{@inputFolder}/*.png"].each do |inputFileName|
 			if @configReader.multiThreaded
@@ -98,14 +98,14 @@ class SlidingWindowCreator
 
 		# make sure new scale is at least as big as outputRectangleSize
 		if scaledImageSize.has_larger_area_than?(@patchSize)
-			tempFileName = "#{@tempFolder}/#{File.basename(inputFileName,".*")}_sliding_#{scale}.png"
+			tempFileName = "#{@tempFolder}/#{File.basename(inputFileName,".*")}_scl_#{scale}.png"
 			@imageMagick.resize(inputFileName, scaledImageSize, tempFileName)
 
 			bboxes = coordinateMath.sliding_window_boxes(
 				scaledImageSize, @patchSize, @sw_StrideX, @sw_StrideY)
 
 			bboxes.each_with_index do |bbox, index|
-				patchFileName = "#{@patchFolder}/#{File.basename(tempFileName,".*")}_#{index}.png"
+				patchFileName = "#{@patchFolder}/#{File.basename(tempFileName,".*")}_idx_#{index}.png"
 				if @isTest
 					@imageMagick.draw_poly(tempFileName, bbox, tempFileName, "#{index}")
 				else
@@ -115,7 +115,7 @@ class SlidingWindowCreator
 			end
 			# if this is test, copy poly-drawn image to right location
 			if @isTest
-				outputFileName = "#{@patchFolder}/#{File.basename(inputFileName,".*")}_sliding_test_#{scale}.png"
+				outputFileName = "#{@patchFolder}/#{File.basename(inputFileName,".*")}_scl_#{scale}.png"
 				FileUtils.cp(tempFileName, outputFileName)
 			end
 			FileUtils.rm_rf(tempFileName)

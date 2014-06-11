@@ -47,6 +47,14 @@ class XMLReader
 		return @annotatedObjects[:"#{name}"]
 	end
 
+	def get_object_names
+		objectNames = []
+		@annotatedObjects.each do |k,v|
+			objectNames << k.to_s
+		end
+		return objectNames
+	end
+
 	private
 		def get_polygon(poly)
 			# get square coordinates

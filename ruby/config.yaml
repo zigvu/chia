@@ -1,5 +1,3 @@
-# class we are interested in
-class_name: adidas-long
 
 # for parallel processing - currently, it uses all processors
 multi_threaded: true
@@ -9,73 +7,57 @@ multi_threaded: true
 khajur_root: /home/ubuntu/khajuri
 caffe_root: /home/ubuntu/chia/caffe
 
-# the following folders are subfolders of inputBaseFolder and outputBaseFolder
-# specified from command line
-runs:
-  crop_positive_patch:
-    current:                                  false
-    input_images_folder:                      images
-    input_annotations_folder:                 annotations
-    output_folder:                            positive_patch
-  crop_negative_patch:
-    current:                                  false
-    input_images_folder:                      images
-    input_annotations_folder:                 none
-    include_sub_folders:                      yes
-    output_folder:                            negative_patch
-    number_of_patch_per_image:                5
-  crop_negative_patch_from_positive:
-    current:                                  false
-    input_images_folder:                      images
-    input_annotations_folder:                 annotations
-    output_folder:                            negative_patch_from_positive
-    number_of_patch_per_image:                5
-  crop_sliding_window:
-    current:                                  true
-    input_images_folder:                      images
-    input_annotations_folder:                 none
-    output_folder:                            sliding_window
-  test_positive_patch:
-    current:                                  false
-    input_images_folder:                      images
-    input_annotations_folder:                 annotations
-    output_folder:                            test_results
-  test_negative_patch:
-    current:                                  false
-    input_images_folder:                      images
-    input_annotations_folder:                 none
-    include_sub_folders:                      yes
-    output_folder:                            test_results
-    number_of_patch_per_image:                5
-  test_negative_patch_from_positive:
-    current:                                  false
-    input_images_folder:                      images
-    input_annotations_folder:                 annotations
-    output_folder:                            test_results
-    number_of_patch_per_image:                5
-  test_sliding_window:
-    current:                                  false
-    input_images_folder:                      images
-    input_annotations_folder:                 none
-    output_folder:                            test_results
-
 
 # for faster operations, provide tempfs location for intermediate computation
 # not used currently
 tempfs: /mnt/tmp/SyntheticData
 
-# dimension for output patches - for now, only squares supported
+# Dimension of patches
 output_width:    256
 output_height:   256
 
-# original size is run no matter what
+# generate positive patches from annotated positive images
+positive_patch:
+  is_test:                                    false
+  folders:
+    image_input:                              images
+    annotation_input:                         annotations
+  transformations:
+    jiggles:
+      fraction_to_keep:                       0.5
+      max_num_jiggles:                        5
+      min_pixel_move:                         50
+    shear:
+      num_shear:                              5
+    scaling:
+      down_scale_times:                       3
+      up_scale_times:                         1
+      scale_factor:                           0.2
+
+# generate negative patches from annotated positive images
+negative_patch_from_positive:
+  is_test:                                    false
+  folders:
+    image_input:                              images
+    annotation_input:                         annotations
+  number_of_patch_per_image:                  5
+
+# generate negative patches from a non-annotated images
+negative_patch:
+  is_test:                                    false
+  folders:
+    include_sub_folders:                      no
+  number_of_patch_per_image:                  5
+
+
+# Sliding window configurations
 sliding_window:
   is_test:                                    false
   folders:
     patch_output:                             patches
     annotation_output:                        annotations
   frame_density:                              5
-  scaling:
+  scaling:                                    # original scale is always run
     x_stride:                                 128
     y_stride:                                 128
     down_scale_times:                         3
@@ -83,11 +65,7 @@ sliding_window:
     scale_factor:                             0.2
 
 
-# synthetic data setting
-# NOT DONE YET
-
-
-# dataset set up
+# Test dataset set up
 dataset_setup:
   # dataset_type can be 'train_test', 'split_data', 'test_only'
   dataset_type:        train_test

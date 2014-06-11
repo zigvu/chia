@@ -2,11 +2,11 @@
 
 require 'fileutils'
 
-require_relative 'ConfigReader.rb'
-require_relative 'SlidingWindowCreator.rb'
-require_relative 'CommonUtils.rb'
-require_relative 'PatchLevelResults.rb'
-require_relative 'FrameLevelResults.rb'
+require_relative 'classes/ConfigReader.rb'
+require_relative 'classes/SlidingWindowCreator.rb'
+require_relative 'classes/CommonUtils.rb'
+require_relative 'classes/PatchLevelResults.rb'
+require_relative 'classes/FrameLevelResults.rb'
 
 if __FILE__ == $0
 	if ARGV.count < 4
@@ -23,7 +23,7 @@ if __FILE__ == $0
 	modelFile = ARGV[2]
 	outputFolder = ARGV[3]
 
-	configReader = ConfigReader.new(configFile, 'notUsed', 'notUsed')
+	configReader = ConfigReader.new(configFile)
 	commonUtils = CommonUtils.new
 
 
@@ -55,7 +55,7 @@ if __FILE__ == $0
 	# extract patches from frames
 	commonUtils.print_banner("Start: Generate patches from frame")
 	swc = SlidingWindowCreator.new(configReader, frameFolder, patchFolder, annotationFolder)
-	swc.generate_sliding_window
+	swc.generate_sliding_windows
 	commonUtils.print_banner("End  : Generate patches from frame")
 
 	

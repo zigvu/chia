@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
 
-require_relative 'ConfigReader.rb'
-require_relative 'DatasetCreator.rb'
+require_relative 'classes/ConfigReader.rb'
+require_relative 'classes/DatasetCreator.rb'
 
 if __FILE__ == $0
 	if ARGV.count < 3
@@ -22,7 +22,7 @@ if __FILE__ == $0
 	inputFolder = ARGV[1]
 	outputFolder = ARGV[2]
 
-	configReader = ConfigReader.new(config, inputFolder, outputFolder)
+	configReader = ConfigReader.new(config)
 	outputRectangleSize = configReader.outputRectangleSize
 	dc = DatasetCreator.new(inputFolder, outputFolder, outputRectangleSize)
 
