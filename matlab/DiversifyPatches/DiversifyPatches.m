@@ -4,11 +4,15 @@ clc;clear all;close all;
 InputDir    = 'C:\Users\Amit\Dropbox\EvanVideo\LogoDetection\BasicFrameWork\DiversifyPatches\InputImages';
 ImageExtension = 'png';
 OutputDir   = 'C:\Users\Amit\Dropbox\EvanVideo\LogoDetection\BasicFrameWork\DiversifyPatches\OutputImages';   %Any existing files will be deleted
+InputDir    = fullfile(pwd,'Input');
+OutputDir   = fullfile(pwd,'Output');
+
+NumberOfThreads = 2;
 CompressionRatio    = 0.25;     % Extract 25 % of the unique patches  
 InputPatchSize      = [72 38]; % [Width, Height]
 
 % Extra Inputs (No need to modify unless necessary)
-numClusters = 400 ;
+numClusters = 200 ;
 
 % -- End Inputs ---------------------------------------------------------
 
@@ -17,7 +21,7 @@ numClusters = 400 ;
 % Path to VLFeat
 VLFeatRoot = fullfile(pwd,'vlfeat-0.9.18');
 run([VLFeatRoot '/toolbox/vl_setup']);
-vl_version verbose    % Check if VLFeat is working
+vl_version('verbose')    % Check if VLFeat is working
     
 %% Read Input Images
 
@@ -42,7 +46,7 @@ fprintf('Completed read of %i input patches \n',length(Imgs));
 %% Perform KMeans
 
 disp('Performing KMEANs ... expect 10 to 30 mins for large patches');
-vl_threads(4);
+vl_threads(NumberOfThreads);
 
 [centers, assignments] = vl_kmeans(single(trainX'), numClusters, 'verbose', 'distance', 'l2', 'algorithm', 'elkan'); 
 % [centers, assignments] = vl_kmeans(single(trainX'), numClusters, 'verbose', 'distance', 'l2' ...
