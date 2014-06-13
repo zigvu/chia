@@ -23,6 +23,9 @@ class ConfigReader
 	attr_accessor :sw_isTest, :sw_StrideX, :sw_StrideY, :sw_downScaleTimes, :sw_upScaleTimes, :sw_scaleFactor
 	attr_accessor :sw_frameDensity, :sw_PatchFolder, :sw_AnnotationFolder
 
+	# video testing
+	attr_accessor :vt_caffeBatchSize, :vt_backgroundClasses, :vt_useGPU
+
 	# root of other repos
 	attr_accessor :khajuriRoot, :caffeRoot
 
@@ -98,5 +101,11 @@ class ConfigReader
 		@sw_frameDensity = Integer(slidingWindow['frame_density'])
 		@sw_PatchFolder = slidingWindow['folders']['patch_output']
 		@sw_AnnotationFolder = slidingWindow['folders']['annotation_output']
+
+		# Video testing
+		videoTesting = y['video_testing']
+		@vt_caffeBatchSize = Integer(videoTesting['caffe_batch_size'])
+		@vt_backgroundClasses = videoTesting['background_classes']
+		@vt_useGPU = videoTesting['use_gpu'] == true
 	end
 end
