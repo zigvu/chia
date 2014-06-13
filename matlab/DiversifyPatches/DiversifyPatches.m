@@ -4,12 +4,11 @@ clc;clear all;close all;
 InputDir    = 'C:\Users\Amit\Dropbox\EvanVideo\LogoDetection\BasicFrameWork\DiversifyPatches\InputImages';
 ImageExtension = 'png';
 OutputDir   = 'C:\Users\Amit\Dropbox\EvanVideo\LogoDetection\BasicFrameWork\DiversifyPatches\OutputImages';   %Any existing files will be deleted
-InputDir    = fullfile(pwd,'Input');
-OutputDir   = fullfile(pwd,'Output');
+
 
 NumberOfThreads = 2;
 CompressionRatio    = 0.25;     % Extract 25 % of the unique patches  
-InputPatchSize      = [72 38]; % [Width, Height]
+InputPatchSize      = [64 64]; % [Width, Height]
 
 % Extra Inputs (No need to modify unless necessary)
 numClusters = 200 ;
