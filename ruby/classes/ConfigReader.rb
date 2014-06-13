@@ -3,7 +3,7 @@ require 'yaml'
 require_relative 'Rectangle.rb'
 
 class ConfigReader
-	attr_accessor :multiThreaded, :tempFolder, :outputRectangleSize
+	attr_accessor :multiThreaded, :numOfProcessors, :tempFolder, :outputRectangleSize
 
 	# dataset split
 	attr_accessor :datasetTypeTrainTest, :datasetTypeSplitData, :datasetTypeTestOnly, :datasetSplit
@@ -31,7 +31,8 @@ class ConfigReader
 
 	def initialize(configFile)
 		y = YAML.load_file(configFile)
-		@multiThreaded = y['multi_threaded'] == true
+		@numOfProcessors = Integer(y['number_of_processors'])
+		@multiThreaded = @numOfProcessors > 0
 
 		@khajuriRoot = y['khajur_root']
 		@caffeRoot = y['caffe_root']

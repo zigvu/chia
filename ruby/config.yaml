@@ -1,6 +1,6 @@
 
-# for parallel processing - currently, it uses all processors
-multi_threaded: true
+# for parallel processing
+number_of_processors: 8
 
 # temporary location for khajuri and caffe paths - will get
 # these from environment variable in the future

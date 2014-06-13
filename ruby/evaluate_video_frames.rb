@@ -40,7 +40,11 @@ if __FILE__ == $0
 	leveldbLabelFile = "#{outputFolder}/leveldb_labels.txt"
 	caffeResultFile = "#{outputFolder}/caffe_result.csv"
 
+	if Dir.exists?(outputFolder)
+		raise RuntimeError, "evaluate_video_frames: 'output' directory exists - please delete/move it first"
+	end
 
+	FileUtils.rm_rf(configReader.tempFolder)
 	FileUtils.mkdir_p(frameFolder)
 	FileUtils.mkdir_p(patchFolder)
 	FileUtils.mkdir_p(annotationFolder)
