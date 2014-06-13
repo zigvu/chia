@@ -14,20 +14,19 @@ class PositivePatchCreator
 	end
 
 	def create_positive_patches
-		threads = []
-		Dir["#{@annotationsFolder}/*.xml"].each do |inputAnnotation|
-			if @configReader.multiThreaded
-				threads << Thread.new(inputAnnotation) { |fname|
-					patch_single_file(fname)
-				}
-			else
-				patch_single_file(inputAnnotation)
-			end
-			#break
-		end
-
+		allInputFiles = Dir["#{@annotationsFolder}/*.xml"]
 		if @configReader.multiThreaded
-			threads.each { |thr| thr.join }
+			allInputFiles.each_slice(@configReader.numOfProcessors * 2) do |group|
+				group.map do |inputFileName|
+					Thread.new do
+						patch_single_file(inputFileName)
+					end
+				end.each(&:join)
+			end
+		else
+			allInputFiles.each do |inputFileName|
+				patch_single_file(inputFileName)
+			end
 		end
 	end
 

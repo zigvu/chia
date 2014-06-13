@@ -1,6 +1,6 @@
 
-# for parallel processing - currently, it uses all processors
-multi_threaded: true
+# for parallel processing
+number_of_processors: 8
 
 # temporary location for khajuri and caffe paths - will get
 # these from environment variable in the future
@@ -64,6 +64,12 @@ sliding_window:
     up_scale_times:                           1
     scale_factor:                             0.2
 
+# Video testing configuration - in addition to sliding window above
+video_testing:
+  background_classes:
+    - 0
+  caffe_batch_size:                           50
+  use_gpu:                                    true
 
 # Test dataset set up
 dataset_setup:

@@ -34,20 +34,19 @@ class SlidingWindowCreator
 	end
 
 	def generate_sliding_windows
-		threads = []
-		Dir["#{@inputFolder}/*.png"].each do |inputFileName|
-			if @configReader.multiThreaded
-				threads << Thread.new(inputFileName) { |fname|
-					slide_single_image(fname)
-				}
-			else
+		allInputFiles = Dir["#{@inputFolder}/*.png"]
+		if @configReader.multiThreaded
+			allInputFiles.each_slice(@configReader.numOfProcessors * 2) do |group|
+				group.map do |inputFileName|
+					Thread.new do
+						slide_single_image(inputFileName)
+					end
+				end.each(&:join)
+			end
+		else
+			allInputFiles.each do |inputFileName|
 				slide_single_image(inputFileName)
 			end
-			#break
-		end
-
-		if @configReader.multiThreaded
-			threads.each { |thr| thr.join }
 		end
 	end
 
@@ -124,8 +123,12 @@ class SlidingWindowCreator
 	end
 
 	def write_sliding_window_json(inputFileName, slidingWindows)
-		outputFileName = "#{@annotationFolder}/#{File.basename(inputFileName,".*")}_sliding.json"
-		outputJson = {frame_filename: File.basename(inputFileName), scales: slidingWindows}
+		outputFileName = "#{@annotationFolder}/#{File.basename(inputFileName,".*")}.json"
+		outputJson = {
+			annotation_filename: File.basename(outputFileName),
+			frame_filename: File.basename(inputFileName),
+			frame_number: Integer(File.basename(inputFileName,".*").split("_frame_")[1]),
+			scales: slidingWindows}
 
 		File.open(outputFileName, 'w') do |file|
 			file.puts JSON.pretty_generate(outputJson)

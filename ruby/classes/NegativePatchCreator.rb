@@ -26,21 +26,19 @@ class NegativePatchCreator
 	end
 
 	def create_negative_patches
-		threads = []
-		imageFiles = @configReader.np_IncludeSubFolders ? Dir["#{@inputFolder}/**/*.png"] : Dir["#{@inputFolder}/*.png"]
-		imageFiles.each do |inputFileName|
-			if @configReader.multiThreaded
-				threads << Thread.new(inputFileName) { |fname|
-					patch_single_file(fname)
-				}
-			else
+		allInputFiles = @configReader.np_IncludeSubFolders ? Dir["#{@inputFolder}/**/*.png"] : Dir["#{@inputFolder}/*.png"]
+		if @configReader.multiThreaded
+			allInputFiles.each_slice(@configReader.numOfProcessors * 2) do |group|
+				group.map do |inputFileName|
+					Thread.new do
+						patch_single_file(inputFileName)
+					end
+				end.each(&:join)
+			end
+		else
+			allInputFiles.each do |inputFileName|
 				patch_single_file(inputFileName)
 			end
-			#break
-		end
-
-		if @configReader.multiThreaded
-			threads.each { |thr| thr.join }
 		end
 	end
 
