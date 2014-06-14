@@ -25,8 +25,10 @@ class ImageMagick
 	def crop(inputFileName, rectangle, outputFileName)
 		r = rectangle
 		bash("convert #{inputFileName} -crop \
-			#{r.width}x#{r.height}+#{r.x0}+#{r.y0}! \
+			#{r.width}x#{r.height}+#{r.x0}+#{r.y0}\! \
 			#{outputFileName}")
+		# sometimes crop misses a few pixels, so need to resize
+		resize_exact(outputFileName, rectangle, outputFileName)
 	end
 
 	def draw_poly(inputFileName, rectangle, outputFileName, text = '')
