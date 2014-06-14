@@ -10,6 +10,7 @@ class ConfigReader
 
 	# positive patch
 	attr_accessor :pp_isTest, :pp_ImagesFolder, :pp_AnnotationsFolder
+	attr_accessor :pp_minObjectAreaFraction
 	attr_accessor :pp_tx_jigglesFraction, :pp_tx_maxNumJiggles, :pp_tx_minPixelMove, :pp_tx_numShear
 	attr_accessor :pp_tx_upScaleTimes, :pp_tx_downScaleTimes, :pp_tx_scaleFactor
 
@@ -67,6 +68,8 @@ class ConfigReader
 		@pp_isTest = positivePatch['is_test'] == true
 		@pp_ImagesFolder = positivePatch['folders']['image_input']
 		@pp_AnnotationsFolder = positivePatch['folders']['annotation_input']
+
+		@pp_minObjectAreaFraction = positivePatch['min_object_area_fraction']
 		
 		transformations = positivePatch['transformations']
 		@pp_tx_jigglesFraction = Float(transformations['jiggles']['fraction_to_keep'])

@@ -62,6 +62,12 @@ class Rectangle
 		return (1.0 * xOverlap * yOverlap / (@width * @height)).round(1)
 	end
 
+	def get_distance(anotherRectangle)
+		aXC, aYC = anotherRectangle.get_center
+		bXC, bYC = get_center
+		return Math.sqrt(((aXC - bXC) * (aXC - bXC)) + ((aYC - bYC) * (aYC - bYC)))
+	end
+
 	def is_square?
 		return @width == @height
 	end

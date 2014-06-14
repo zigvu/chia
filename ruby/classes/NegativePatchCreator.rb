@@ -58,14 +58,15 @@ class NegativePatchCreator
 
 		FileUtils.cp(inputFileName, tmpFile)
 		imageSize = @imageMagick.identify(tmpFile)
-		
-		counter = 0
-		negativePatch = @coordinateMath.get_negative_candidate(imageSize, @basePolygon, @outputRectangleSize)
-		while negativePatch != nil && counter < @numPatchPerImage
-			draw_single_patch(tmpFile, negativePatch, tmpFile, counter)
 
-			negativePatch = @coordinateMath.get_negative_candidate(imageSize, @basePolygon, @outputRectangleSize)
-			counter = counter + 1
+		patchCandidates = @coordinateMath.get_negative_candidates(imageSize, @basePolygon, 
+			@outputRectangleSize, @numPatchPerImage)
+		patchCandidates.each_with_index do |cropPatch, pidx|
+			# breaking conditions
+		 	if pidx >= @numPatchPerImage
+		 		break
+		 	end
+			draw_single_patch(tmpFile, cropPatch, tmpFile, pidx)
 		end
 
 		if @isTest

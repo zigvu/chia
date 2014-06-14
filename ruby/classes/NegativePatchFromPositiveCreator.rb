@@ -77,14 +77,17 @@ class NegativePatchFromPositiveCreator
 		outputFileName = "#{@outputFolder}/#{File.basename(inputFileName, '.*')}_npfp.png"
 
 		FileUtils.cp(inputFileName, tmpFile)
-		
-		counter = 0
-		negativePatch = @coordinateMath.get_negative_candidate(imageSize, objRectangle, @outputRectangleSize)
-		while negativePatch != nil && counter < @numPatchPerImage
-			draw_single_patch(tmpFile, negativePatch, tmpFile, counter)
 
-			negativePatch = @coordinateMath.get_negative_candidate(imageSize, objRectangle, @outputRectangleSize)
-			counter = counter + 1
+		# sample in high density and keep those closest to objRectangle - giving the same patches - so not using
+		patchCandidates = @coordinateMath.get_negative_candidates(imageSize, objRectangle, 
+			@outputRectangleSize, @numPatchPerImage)
+		#patchCandidates = @coordinateMath.order_by_distance(patchCandidates, objRectangle)
+		patchCandidates.each_with_index do |cropPatch, pidx|
+			# breaking conditions
+		 	if pidx >= @numPatchPerImage
+		 		break
+		 	end
+			draw_single_patch(tmpFile, cropPatch, tmpFile, pidx)
 		end
 
 		if @isTest

@@ -17,6 +17,8 @@ class PositivePatchSingle
 		@isTest = configReader.pp_isTest
 		@outputRectangleSize = configReader.outputRectangleSize
 
+		@pp_minObjectAreaFraction = configReader.pp_minObjectAreaFraction
+
 		@pp_tx_jigglesFraction = configReader.pp_tx_jigglesFraction
 		@pp_tx_maxNumJiggles = configReader.pp_tx_maxNumJiggles
 		@pp_tx_minPixelMove = configReader.pp_tx_minPixelMove
@@ -103,21 +105,34 @@ class PositivePatchSingle
 				@imageMagick.draw_poly(outputFileName, rectanglePatch, outputFileName, "#{objName}: Closest: #{index}")
 			end
 
+			# ensure that rectanglePatch meets the minimum dimension requirements
+			next if (rectanglePatch.get_area * 1.0 / @outputRectangleSize.get_area) < @pp_minObjectAreaFraction
+
 			patchCandidates = coordinateMath.get_patch_candidates(
 				imageConstraintRect, rectanglePatch, @outputRectangleSize, @pp_tx_minPixelMove)
 			patchCandidates.shuffle!
 
 			patchCandidates.each_with_index do |cropPatch, pidx|
-			 	if (pidx >= @pp_tx_maxNumJiggles) || (
-			 		(1.0 * pidx/patchCandidates.count) > @pp_tx_jigglesFraction)
+				# breaking conditions
+				# if exceed number of jiggles allowed
+			 	if pidx >= @pp_tx_maxNumJiggles
 			 		break
 			 	end
+			 	# if only two candidates, take all
+			 	if patchCandidates.count > 2
+			 		# if more than 2, then take only required fraction
+			 		break if (1.0 * pidx/patchCandidates.count) > @pp_tx_jigglesFraction
+			 	end
+
+			  # if looking for a square, panic if we don't get one back
 				if @outputRectangleSize.is_square?
 					if not cropPatch.is_square?
 						cropPatch.print
 						raise RuntimeError, "PositivePatchSingle: Couldn't construct a rectangle patch to crop"
 					end
 				end
+				
+				# finally, proliferate
 				if @isTest
 					@imageMagick.draw_poly(outputFileName, cropPatch, outputFileName, "#{objName}: Crop: #{index}.#{pidx}")			
 				else

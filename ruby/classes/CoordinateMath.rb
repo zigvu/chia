@@ -94,6 +94,55 @@ class CoordinateMath
 		return rect
 	end
 
+	def get_negative_candidates(imageConstraintRect, labelRect, outputRequirementRect, numOfPatches)
+		patchCandidates = []
+		ic = imageConstraintRect
+		lr = labelRect
+		oc = outputRequirementRect
+
+		clearanceTop 			= lr.y0 - ic.y0
+		clearanceBottom 	= ic.y1 - lr.y1
+		clearanceLeft			= lr.x0 - ic.x0
+		clearanceRight		= ic.x2 - lr.x2
+
+		possibleWindows = []
+		if clearanceTop > oc.height
+			rect = Rectangle.new
+			possibleWindows << rect.from_dimension(ic.x0, ic.y0, ic.width, clearanceTop)
+		end
+		if clearanceBottom > oc.height
+			rect = Rectangle.new
+			possibleWindows << rect.from_dimension(ic.x0, lr.y1, ic.width, clearanceBottom)
+		end
+		if clearanceLeft > oc.width
+			rect = Rectangle.new
+			possibleWindows << rect.from_dimension(ic.x0, ic.y0, clearanceLeft, ic.height)
+		end
+		if clearanceRight > oc.width
+			rect = Rectangle.new
+			possibleWindows << rect.from_dimension(lr.x2, ic.y0, clearanceRight, ic.height)
+		end
+
+		# if no possible windows, then return nil
+		return patchCandidates if possibleWindows.count == 0
+
+		for i in 0..numOfPatches
+			# if window is possible, choose one in random
+			chosenWindow = possibleWindows[rand(possibleWindows.count)]
+			# to create subwindow, look at places where it will go out of bounds
+			xMax = chosenWindow.x2 - chosenWindow.x0 - oc.width
+			yMax = chosenWindow.y1 - chosenWindow.y0 - oc.height
+			if xMax > 0 && yMax > 0
+				rect = Rectangle.new
+				rect.from_dimension(
+					chosenWindow.x0 + rand(xMax), chosenWindow.y0 + rand(yMax), 
+					oc.width, oc.height)
+				patchCandidates << rect
+			end
+		end
+		return patchCandidates
+	end
+
 	def get_patch_candidates(imageConstraintRect, inputRect, outputRequirementRect, minPixelMove)
 		patchCandidates = []
 		ic = imageConstraintRect
@@ -104,6 +153,16 @@ class CoordinateMath
 		xCenter, yCenter = inputRect.get_center
 		smallWidth, smallHeight = outputRequirementRect.smallest_proportional_dimensions
 		centerInputRect.from_dimension(xCenter, yCenter, smallWidth, smallHeight)
+
+		# if inputRect has larger dimension than outputRequirementRect, this image needs resizing
+		if not outputRequirementRect.has_larger_dimensions_than?(inputRect)
+			# however, pass through a patch if it contain at least 85% of inputRect
+			largePatchCandidate = resize_to_match(imageConstraintRect, centerInputRect, outputRequirementRect)
+			if inputRect.overlap_fraction(largePatchCandidate) > 0.85
+				patchCandidates << largePatchCandidate
+			end
+			return patchCandidates
+		end
 
 		# no matter what, get at least the first patch
 		patchCandidates << resize_to_match(imageConstraintRect, centerInputRect, outputRequirementRect)
@@ -272,7 +331,9 @@ class CoordinateMath
 			rect.from_points(x0, y0, x1, y1, x2, y2, x3, y3)
 		end
 		# fix pixel arithmetic mistake - sometimes gets off by 1
-		rect.from_dimension(rect.x0, rect.y0, outputRequirementRect.width, outputRequirementRect.height)
+		x0 = rect.x0 < 0 ? 0 : rect.x0
+		y0 = rect.y0 < 0 ? 0 : rect.y0
+		rect.from_dimension(x0, y0, outputRequirementRect.width, outputRequirementRect.height)
 
 		return rect
 	end
@@ -300,6 +361,22 @@ class CoordinateMath
 			end
 		end
 		return slidingWindowBoxes
+	end
+
+	# orders an array of rectangle by the distance from rectangle
+	def order_by_distance(array, rectangle)
+		retArray = []
+		return retArray if array.count == 0
+		distHash = {}
+		array.each do |a|
+			dist = rectangle.get_distance(a)
+			distHash.merge!({ dist => a })
+		end
+		sortedArr = distHash.sort_by { |dist, arr| dist }
+		sortedArr.each do |sa|
+			retArray << sa[1]
+		end
+		return retArray
 	end
 
 	private
