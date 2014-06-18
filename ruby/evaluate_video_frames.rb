@@ -39,6 +39,7 @@ if __FILE__ == $0
 
 	leveldbLabelFile = "#{outputFolder}/leveldb_labels.txt"
 	caffeResultFile = "#{outputFolder}/caffe_result.csv"
+	postAnalysisCSVFile = "#{outputFolder}/#{File.basename(inputVideo,'.*')}_results.csv"
 
 	if Dir.exists?(outputFolder)
 		raise RuntimeError, "evaluate_video_frames: 'output' directory exists - please delete/move it first"
@@ -121,6 +122,7 @@ if __FILE__ == $0
 		configReader, allPatchesResultHash, patchFolder, frameFolder, postAnalysisFolder)
 	savePostAnalysisPatches.copy_patches_non_background_classes
 	savePostAnalysisPatches.copy_frame_background_classes
+	patchTracker.dump_csv(postAnalysisCSVFile)
 	commonUtils.print_banner("End  : Save frames/patches for post-analysis")
 	commonUtils.print_time("Save frames/patches for post-analysis")	
 

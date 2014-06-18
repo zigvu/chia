@@ -15,6 +15,8 @@ fi
 testFolderName=$1
 testFolderBaseName=$(basename "$testFolderName")
 
+cp ../../python/get_predictions.py $PYTHON/get_predictions.py
+
 $PYTHON/get_predictions.py --model_def logo_deploy.prototxt \
 		--pretrained_model $FINAL_MODEL_NAME \
 		--gpu \

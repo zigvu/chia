@@ -122,4 +122,39 @@ class PatchTracker
 		end
 	end
 
+	def dump_csv(outputFileName)
+		file = File.open(outputFileName, 'w')
+		
+		topLine = "frame_number,frame_filename,annotation_filename,scale,patch_filename," + 
+				"patch_dim_x,patch_dim_y,patch_dim_width,patch_dim_height"
+		scrs = allPatches.first[1]["scales"][0]["patches"][0]["scores"]
+		scrsKeyArr = []
+		scrs.each do |k,v|; scrsKeyArr << k; end
+		scrsKeyArr.each do |sck|
+			topLine = "#{topLine},scores_cls_#{sck}"
+		end
+		file.puts topLine
+		@allPatches.each do |frame_number, fileJSON|
+			frame_filename = fileJSON["frame_filename"]
+			annotation_filename = fileJSON["annotation_filename"]
+			fileJSON['scales'].each do |scale|
+				scaleNum = Float(scale["scale"])
+				scale['patches'].each do |patch|
+					patch_filename = patch["patch_filename"]
+					patch_dim_x = patch["patch"]["x"]
+					patch_dim_y = patch["patch"]["y"]
+					patch_dim_width = patch["patch"]["width"]
+					patch_dim_height = patch["patch"]["height"]
+					line = "#{frame_number},#{frame_filename},#{annotation_filename},#{scaleNum},#{patch_filename}," + 
+							"#{patch_dim_x},#{patch_dim_y},#{patch_dim_width},#{patch_dim_height}"
+					scrsKeyArr.each do |sck|
+						line = "#{line},#{patch['scores'][sck]}"
+					end
+					file.puts line
+				end
+			end
+		end
+		file.close
+	end
+
 end

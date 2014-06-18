@@ -2,7 +2,9 @@ Steps:
 --------------------------------------------------------------
 * Copy paste this folder to a fast SSD drive. 
 * Populate folder 'input' with training/test data from ruby script 'create_dataset_split.rb'.
-* Modify prototxt files as needed - if finetuning imagenet, no change is necessary
+* Modify prototxt files as needed
+  - Specify different base network if not finetuning using pre-trained imagenet
+  - Specify number of output. For multi-class logos, change fc8_logo layer in all prototxt files to number of classes
 
 * Run 'create_logo.sh' to create leveldb
 * Run 'finetune_logo.sh' to finetune imagenet network to train on this dataset
