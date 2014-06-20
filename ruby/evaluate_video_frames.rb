@@ -31,9 +31,13 @@ if __FILE__ == $0
 
 	# -----------------------------------------------
 	# set folder names
-	frameFolder = "#{outputFolder}/#{File.basename(inputVideo,'.*')}"
+	# frameFolder = "#{outputFolder}/#{File.basename(inputVideo,'.*')}"
 	patchFolder = "#{outputFolder}/#{configReader.sw_PatchFolder}"
 	annotationFolder = "#{outputFolder}/#{configReader.sw_AnnotationFolder}"
+	frameFolder = "#{outputFolder}/frames"
+	# patchFolder = "#{outputFolder}/patches"
+	# annotationFolder = "#{outputFolder}/annotations"
+
 	leveldbFolder = "#{outputFolder}/logo-leveldb"
 	postAnalysisFolder = "#{outputFolder}/post_analysis"
 
@@ -51,29 +55,17 @@ if __FILE__ == $0
 	FileUtils.mkdir_p(annotationFolder)
 	FileUtils.mkdir_p(leveldbFolder)
 
-
 	# -----------------------------------------------
-	# Extract all frames
-	videoReaderCommand = "#{configReader.khajuriRoot}/VideoReader/VideoReader" + 
+	# Extract patches and annotations
+	logoPipelinePatchExtractorCommand = "#{configReader.khajuriRoot}/LogoPipeline.py" + 
+			" #{configFile}" +
 			" #{inputVideo}" +
-			" #{configReader.sw_frameDensity}" +
-			" #{frameFolder}"
-	commonUtils.print_banner("Start: Generate frames from video")
-	commonUtils.bash(videoReaderCommand)
-	commonUtils.print_banner("End  : Generate frames from video")
-	commonUtils.print_time("Generate frames from video")
-	
-
-
-	# -----------------------------------------------
-	# Extract patches from frames
-	commonUtils.print_banner("Start: Generate patches from frame")
-	slidingWindowCreator = SlidingWindowCreator.new(configReader, frameFolder, patchFolder, annotationFolder)
-	slidingWindowCreator.generate_sliding_windows
-	commonUtils.print_banner("End  : Generate patches from frame")
-	commonUtils.print_time("Generate patches from frame")
-
-
+			" #{outputFolder}"
+	puts logoPipelinePatchExtractorCommand
+	commonUtils.print_banner("Start: Generate patches from video")
+	commonUtils.bash(logoPipelinePatchExtractorCommand)
+	commonUtils.print_banner("End  : Generate patches from video")
+	commonUtils.print_time("Generate patches from video")
 
 	# -----------------------------------------------
 	# Create level db for caffe

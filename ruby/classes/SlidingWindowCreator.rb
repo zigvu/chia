@@ -21,9 +21,8 @@ class SlidingWindowCreator
 		@patchSize = configReader.outputRectangleSize
 		@sw_StrideX = configReader.sw_StrideX
 		@sw_StrideY = configReader.sw_StrideY
-		@sw_downScaleTimes = configReader.sw_downScaleTimes
-		@sw_upScaleTimes = configReader.sw_upScaleTimes
-		@sw_scaleFactor = configReader.sw_scaleFactor
+		@sw_scales = configReader.sw_scales
+
 
 		@patchFolder = patchFolder
 		@annotationFolder = annotationFolder
@@ -60,26 +59,7 @@ class SlidingWindowCreator
 		slidingWindows = []
 		originalSize = @imageMagick.identify(inputFileName)
 
-		# first, run original size
-		scale = 1.0
-		sw_Boxes = sliding_window_helper(inputFileName, originalSize, scale)
-		slidingWindows << {scale: scale, patches: sw_Boxes}
-
-		# down scale
-		for scaleTimes in 1..@sw_downScaleTimes
-			scale = (1 - @sw_scaleFactor * scaleTimes).round(1)
-			scaledImageSize = Rectangle.new
-			scaledImageSize.from_dimension(
-				0,0, 
-				Integer(originalSize.width * scale), Integer(originalSize.height * scale))
-			
-			sw_Boxes = sliding_window_helper(inputFileName, scaledImageSize, scale)
-			slidingWindows << {scale: scale, patches: sw_Boxes}
-		end
-
-		# up scale
-		for scaleTimes in 1..@sw_upScaleTimes
-			scale = (1 + @sw_scaleFactor * scaleTimes).round(1)
+		@sw_scales.each do |scale|
 			scaledImageSize = Rectangle.new
 			scaledImageSize.from_dimension(
 				0,0, 

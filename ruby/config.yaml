@@ -52,7 +52,6 @@ negative_patch:
     include_sub_folders:                      no
   number_of_patch_per_image:                  5
 
-
 # Sliding window configurations
 sliding_window:
   is_test:                                    false
@@ -60,12 +59,14 @@ sliding_window:
     patch_output:                             patches
     annotation_output:                        annotations
   frame_density:                              5
-  scaling:                                    # original scale is always run
-    x_stride:                                 128
-    y_stride:                                 128
-    down_scale_times:                         3
-    up_scale_times:                           3
-    scale_factor:                             0.2
+  x_stride:                                   128
+  y_stride:                                   128
+  scaling:
+    - 1.0
+    - 0.8
+    - 0.6
+    - 0.4
+    - 1.2
 
 # Video testing configuration - in addition to sliding window above
 video_testing:

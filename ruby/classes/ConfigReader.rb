@@ -21,7 +21,7 @@ class ConfigReader
 	attr_accessor :np_isTest, :np_IncludeSubFolders, :np_NumPatchPerImage
 	
 	# sliding window
-	attr_accessor :sw_isTest, :sw_StrideX, :sw_StrideY, :sw_downScaleTimes, :sw_upScaleTimes, :sw_scaleFactor
+	attr_accessor :sw_isTest, :sw_StrideX, :sw_StrideY, :sw_scales
 	attr_accessor :sw_frameDensity, :sw_PatchFolder, :sw_AnnotationFolder
 
 	# video testing
@@ -96,11 +96,12 @@ class ConfigReader
 		# sliding window
 		slidingWindow = y['sliding_window']
 		@sw_isTest = slidingWindow['is_test'] == true
-		@sw_StrideX = Integer(slidingWindow['scaling']['x_stride'])
-		@sw_StrideY = Integer(slidingWindow['scaling']['y_stride'])
-		@sw_downScaleTimes = Integer(slidingWindow['scaling']['down_scale_times'])
-		@sw_upScaleTimes = Integer(slidingWindow['scaling']['up_scale_times'])
-		@sw_scaleFactor = Float(slidingWindow['scaling']['scale_factor']).round(1)
+		@sw_StrideX = Integer(slidingWindow['x_stride'])
+		@sw_StrideY = Integer(slidingWindow['y_stride'])
+		@sw_scales = []
+		slidingWindow['scaling'].each do |swscl|
+			@sw_scales << Float(swscl)
+		end
 
 		@sw_frameDensity = Integer(slidingWindow['frame_density'])
 		@sw_PatchFolder = slidingWindow['folders']['patch_output']
