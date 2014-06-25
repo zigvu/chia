@@ -104,10 +104,14 @@ class SlidingWindowCreator
 
 	def write_sliding_window_json(inputFileName, slidingWindows)
 		outputFileName = "#{@annotationFolder}/#{File.basename(inputFileName,".*")}.json"
+		frameNum = File.basename(inputFileName,".*").split("_frame_")[1]
+		if frameNum == nil
+			frameNum = 0
+		end
 		outputJson = {
 			annotation_filename: File.basename(outputFileName),
 			frame_filename: File.basename(inputFileName),
-			frame_number: Integer(File.basename(inputFileName,".*").split("_frame_")[1]),
+			frame_number: Integer(frameNum),
 			scales: slidingWindows}
 
 		File.open(outputFileName, 'w') do |file|
