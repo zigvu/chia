@@ -95,3 +95,5 @@ if __name__ == '__main__':
       PosFrames = sys.argv[2];
       PatchDir  = sys.argv[3];
       OutDir    = sys.argv[4];
+      ProcessOutput(OutputCSV,PosFrames,PatchDir,OutDir)
+      
