@@ -54,15 +54,37 @@ class DetectorOutput():
     def getPatchScores(self,frameName):
         # Initialize empty 
         PatchScores = {};
+        PatchRects = {};
+        PatchParentFrame = {};
         # Extract filename without extension
         key = os.path.splitext(frameName)[0];
         # Iterate through the results
         if self.DetectorOutStruct.get(key):
             P = self.DetectorOutStruct.get(key);
             for k in P:
-                # k is a list of [jsonfile,frameid,patchname,x,y,width,height,score_1,score_0]
-                PatchScores[k[2]] = k[7];
-        return PatchScores;
+                # k is a list of [jsonfile,scale,patchname,x,y,width,height,score_1,score_0]
+                PatchScores[k[2]] = float(k[7]);
+                PatchRects[k[2]] = [float(x) for x in [k[1],k[3],k[4],k[5],k[6]]];  # Return, scale, x,y,width,height
+                PatchParentFrame[k[2]] = frameName;   # The frame this patch belongs to
+        return PatchScores,PatchRects,PatchParentFrame;
+        
+    # Give a frame and patch name, returns all patches that are bigger (i.e. from smaller scale)
+    # This is to discover patches that may be encompoassed by another patch        
+    def getLargerPatchesInFrame(self,frameName,scale):
+        # Initialize empty
+        PatchNames = [];
+        # Extract filename without extension
+        key = os.path.splitext(frameName)[0];
+        # Check if data for this key exists
+        if self.DetectorOutStruct.get( key ):
+            # Get all patches in this frame
+            P = self.DetectorOutStruct.get(key);
+            # Iterate through the patches
+            for k in P:
+                patchscale = k[1];
+                if float(patchscale) < float(scale):
+                    PatchNames.append(k[2])
+        return PatchNames;
         
     # Get all detector output for specified frame
     def getDetectorOutput(self,frameName,Scale=None):
@@ -108,7 +130,8 @@ class DetectorOutput():
                 Rects[a,2]  = BoxX.max() - BoxX.min();
                 Rects[a,3]  = BoxY.max() - BoxY.min();
         return Rects;
-        
+
+           
     # Return Patches
     def getPatches(self,frameName):
         # Initialize empty
