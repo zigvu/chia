@@ -193,6 +193,7 @@ if __name__ == '__main__':
   #print sys.argv;
   if len(sys.argv) == 2:   # Called the second time with just the patch directory
       print "Running final patch generation"
+      OutputFinalPatches(sys.argv[1])
   elif len(sys.argv) == 5:
       print 'Ok'
       OutputCSV = sys.argv[1];
