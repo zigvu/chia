@@ -110,9 +110,9 @@ def ProcessOutput(OutputCSV,PosFramesFile,PatchDir,OutDir):
     CopyError = False;
     r = 1;
     for patchName in PatchesToWrite:
-        srcFile = PatchDir + "\\" + patchName;
+        srcFile = PatchDir + "//" + patchName;
         score = str(int(round(100*PatchScores[patchName])));
-        dstFile = OutDir + "\\"  + score +"_"+patchName;        
+        dstFile = OutDir + "//"  + score +"_"+patchName;        
         if r%1000 == 0:
             print str(r) +" of "+str(len(PatchesToWrite))
         try:
@@ -128,7 +128,7 @@ def ProcessOutput(OutputCSV,PosFramesFile,PatchDir,OutDir):
     #pdb.set_trace();
 
     # Save dictionary objects to file for second run
-    FileObj = shelve.open(OutDir+"\\PatchInfo");
+    FileObj = shelve.open(OutDir+"//PatchInfo");
     FileObj['ParentPatches'] = ParentPatches;
     FileObj['OutDir'] = OutDir;
     FileObj ['PatchScores'] = PatchScores;
@@ -138,7 +138,7 @@ def ProcessOutput(OutputCSV,PosFramesFile,PatchDir,OutDir):
 
 def OutputFinalPatches(StartDir):
     # Load intermediate files
-    FileObj = shelve.open(StartDir+"\\PatchInfo");
+    FileObj = shelve.open(StartDir+"//PatchInfo");
     ParentPatches = FileObj['ParentPatches'];
     OutDir = FileObj['OutDir'];
     PatchScores = FileObj ['PatchScores'];
@@ -151,7 +151,7 @@ def OutputFinalPatches(StartDir):
     ImgFiles.extend(glob.glob(StartDir+"/*.png"))
     
     # Create a final directory
-    FinalDir = StartDir + "\\FPForRetraining";
+    FinalDir = StartDir + "//FPForRetraining";
     # Create output directory if needed
     if os.path.exists(FinalDir):   # Delete all files in the directory
         filelist = glob.glob(FinalDir+"//*.png")
@@ -172,8 +172,8 @@ def OutputFinalPatches(StartDir):
                 OutputPatch = True;
         # Output patch
         if OutputPatch:
-            srcFile = PatchDir + "\\" + PatchName;
-            dstFile = FinalDir + "\\"  +PatchName;        
+            srcFile = PatchDir + "//" + PatchName;
+            dstFile = FinalDir + "//"  +PatchName;        
         if r%1000 == 0:
             print str(r) +" patches copied "
         try:
@@ -202,7 +202,7 @@ if __name__ == '__main__':
       ProcessOutput(OutputCSV,PosFrames,PatchDir,OutDir)
   else:
       print 'Usage %s <Output_CSV_File> <File containing names of positive frames> <Directory containing Patches> <OutputDirectory>' % sys.argv[ 0 ]
-      print 'Dont include trailing "\\" slash in directory names'
+      print 'Dont include trailing "//" slash in directory names'
       BaseDir = "C:\Users\amit.bohara\Documents\Logo\S3\VxOQWgcLNSk";
       
 #      PosFrames = 'C:\Users\\amit.bohara\Documents\Logo\S3\\gHUp_cT3t30\Output\curated\\adidas-positives.txt';
