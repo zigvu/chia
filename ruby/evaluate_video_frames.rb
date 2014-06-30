@@ -91,7 +91,7 @@ if __FILE__ == $0
 	commonUtils.print_banner("Start: Run caffe")
 	caffeIterations = patchTracker.get_caffe_min_iterations
 	useGPU = configReader.vt_useGPU ? "GPU" : "CPU"
-	runCaffeCommand = "#{configReader.caffeRoot}/build/tools/test_net.bin" +
+	runCaffeCommand = "#{configReader.caffeRoot}/build/tools/test_net_logo.bin" +
 		" #{videoProtoFile}" +
 		" #{modelFile}" +
 		" #{caffeIterations}" +
