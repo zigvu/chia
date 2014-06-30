@@ -24,11 +24,15 @@ def ProcessOutput(OutputCSV,PosFramesFile,PatchDir,OutDir):
     
     # Read Positive Frames File
     PositiveFrames = {};
-    with open(PosFrames,'rb') as f:
-        reader = csv.reader(f);
-        for row in reader:
-            PositiveFrames[row[0].replace('.png','')] = 1;
-    print "Positive frame list read"
+    try:
+        with open(PosFrames,'rb') as f:
+            reader = csv.reader(f);
+            for row in reader:
+                PositiveFrames[row[0].replace('.png','')] = 1;
+        print "Positive frame list read"
+    except:
+        print "Positive file not read"
+
     
     # Create output directory if needed
     if os.path.exists(OutDir):   # Delete all files in the directory
