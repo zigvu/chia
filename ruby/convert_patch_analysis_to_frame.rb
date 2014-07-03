@@ -31,8 +31,10 @@ class CombinePatchSingleVideo
 	def run(detectorThreshold, hitThreshold)
 		# run python script
 		FileUtils.rm_rf(@combinedPatchFolder)
-		pythonCmd = "../python/PatchCombiner/frame_level_results.py #{@baseFolder}" + 
-			" #{@videoName} #{detectorThreshold} #{hitThreshold} 0"
+		# pythonCmd = "../python/PatchCombiner/frame_level_results.py #{@baseFolder}" + 
+		# 	" #{@videoName} #{detectorThreshold} #{hitThreshold} 0"
+		pythonCmd = "/home/evan/Vision/khajuri/Logo/test_predictor.py #{@baseFolder}" +
+				" #{@videoName} #{detectorThreshold}"
 		@commonUtils.bash(pythonCmd)
 
 		@cpFrames = []
@@ -107,18 +109,19 @@ if __FILE__ == $0
 	baseFolder = ARGV[0]
 	videoName = ARGV[1]
 
-	cleanResultsCSVFile = File.open("#{baseFolder}/#{videoName}/patch_combination_clean_results.csv",'w')
-	allResultsCSVFile = File.open("#{baseFolder}/#{videoName}/patch_combination_all_results.csv",'w')
+	cleanResultsCSVFile = File.open("#{baseFolder}/#{videoName}/maxPool_patch_combination_clean_results.csv",'w')
+	allResultsCSVFile = File.open("#{baseFolder}/#{videoName}/maxPool_patch_combination_all_results.csv",'w')
 
 	detectorThresholds = [0.5, 0.7, 0.9, 0.98]
 	hitThresholds = [2, 4, 6, 8, 10, 12, 14, 16]
+	hitThreshold = 0
 
 	cleanResultsCSVFile.puts "DetectorThreshold,HitThreshold,TP,FN,TN,FP,Accuracy"
 	allResultsCSVFile.puts "DetectorThreshold,HitThreshold,TP,FN,TN,FP,Accuracy"
 
 	combinePatchSingleVideo = CombinePatchSingleVideo.new(baseFolder, videoName)
 	detectorThresholds.each do |detectorThreshold|
-		hitThresholds.each do |hitThreshold|
+		#hitThresholds.each do |hitThreshold|
 			cleanResult, allResult = combinePatchSingleVideo.run(detectorThreshold, hitThreshold)
 			puts "DetectorThreshold: #{detectorThreshold}, HitThreshold: #{hitThreshold}"
 			puts "Clean: #{cleanResult}"
@@ -126,7 +129,7 @@ if __FILE__ == $0
 			puts " "
 			cleanResultsCSVFile.puts "#{detectorThreshold},#{hitThreshold},#{cleanResult}"
 			allResultsCSVFile.puts "#{detectorThreshold},#{hitThreshold},#{allResult}"
-		end
+		#end
 	end
 
 	cleanResultsCSVFile.close
