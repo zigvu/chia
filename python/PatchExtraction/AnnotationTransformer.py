@@ -133,8 +133,7 @@ class AnnotationTransformer:
     for i, annotation in self.annotations.iteritems():
       label = annotation['label']
       bbox = annotation['poly'].get_scaled_rectangle(scaleFactor)
-      if scaledTransformer.is_poly_valid(label, bbox):
-        scaledTransformer.add_annotation(label, bbox)
+      scaledTransformer.add_annotation(label, bbox)
     return scaledTransformer
 
   def get_sheared_copy(self, pt1LR, pt1UD, pt2LR, pt2UD, pt3LR, pt3UD, pt4LR, pt4UD):
@@ -151,8 +150,7 @@ class AnnotationTransformer:
       label = annotation['label']
       bbox = annotation['poly'].get_sheared_rectangle(pt1LR, pt1UD, pt2LR, pt2UD, pt3LR, pt3UD, pt4LR, pt4UD)
       bbox = bbox.apply_linear_transform(translateX, translateY)
-      if shearedTransformer.is_poly_valid(label, bbox):
-        shearedTransformer.add_annotation(label, bbox)
+      shearedTransformer.add_annotation(label, bbox)
     return shearedTransformer
 
   def __str__(self):
