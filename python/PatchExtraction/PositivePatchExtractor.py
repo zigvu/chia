@@ -17,7 +17,7 @@ class PositivePatchExtractor:
     multipleProcesses = []
     # iterate through all files in annotation folder
     for xmlFileName in glob.glob(baseXMLFolder + "/*.xml"):
-      self.process_single_xml(xmlFileName, configReader, baseImageFolder, outputFolder)      
+      #self.process_single_xml(xmlFileName, configReader, baseImageFolder, outputFolder)      
       p = Process(target=self.process_single_xml, args=(xmlFileName, configReader, baseImageFolder, outputFolder,))
       multipleProcesses += [p]
     
