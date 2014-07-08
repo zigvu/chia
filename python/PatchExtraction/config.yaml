@@ -5,11 +5,14 @@ output_height:   256
 # for parallel processing
 number_of_processors: 2
 
+# repeatable random number
+random_seed:                                  1234567890
+
 # generate positive patches from annotated positive images
 positive_patch:
-  is_test:                                    false
+  is_test:                                    true
   # in increasing level of severity: DEBUG, INFO, ERROR
-  log_level:                                  ERROR
+  log_level:                                  DEBUG
   folders:
     image_input:                              images
     annotation_input:                         annotations
@@ -46,4 +49,3 @@ positive_patch:
       # fraction of all patches in which to blend another image patch
       # NOTE: not implemented yet
       blend_fraction:                         0.1
-
