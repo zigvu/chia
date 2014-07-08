@@ -2,7 +2,6 @@
 import yaml
 import random
 import logging
-from random import randint
 from scipy import arange
 from Rectangle import Rectangle
 
@@ -17,6 +16,8 @@ class ConfigReader:
     self.patch_size = Rectangle([(0,0),(width,0),(width,height),(0,height)])
 
     self.numOfProcessors = int(config['number_of_processors'])
+    self.randomNumberSeed = int(config['random_seed'])
+    self.randomWithSeed = random.Random(self.randomNumberSeed)
 
     positivePatch = config['positive_patch']
     self.pp_isTest = positivePatch['is_test'] == True
@@ -56,7 +57,7 @@ class ConfigReader:
                     if not ((pt0X == pt0Y) and (pt0X == pt1X) and (pt0X == pt1Y) and 
                       (pt0X == pt2X) and (pt0X == pt2Y) and (pt0X == pt3X) and (pt0X == pt3Y)):
                       self.pp_tx_shearConfigs += [(pt0X, pt0Y, pt1X, pt1Y, pt2X, pt2Y, pt3X, pt3Y)]
-    random.shuffle(self.pp_tx_shearConfigs)
+    self.randomWithSeed.shuffle(self.pp_tx_shearConfigs)
 
     self.pp_tx_scales = []
     pp_tx_scales = transformations['scaling']
@@ -67,6 +68,15 @@ class ConfigReader:
     self.pp_tx_tintFraction = float(transformations['blending']['tint_fraction'])
     self.pp_tx_tintBlendFraction = float(transformations['blending']['blend_fraction'])
 
+    # spit the config first - logging creates problems it seems
+    print "Config dump"
+    configFile = open(configFileName)
+    for line in configFile:
+      print line.rstrip("\n")
+    configFile.close()
+
   def get_next_color(self):
     """Get next tint color"""
-    return (randint(0,200),randint(0,200),randint(0,200))
+    return (self.randomWithSeed.randint(0,200), \
+      self.randomWithSeed.randint(0,200), \
+      self.randomWithSeed.randint(0,200))

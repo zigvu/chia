@@ -1,3 +1,4 @@
+import os
 import xmltodict
 import logging
 from shapely.geometry import Polygon
@@ -11,6 +12,7 @@ class XMLReader:
       xml = xmltodict.parse(fd.read())
     # copy to class variables
     self.imageFileName = baseImageFolder + "/" + str(xml['annotation']['filename'])
+    self.xmlFileName = os.path.basename(xmlFileName)
 
     width = int(xml['annotation']['imageWidth'])
     height = int(xml['annotation']['imageHeight'])

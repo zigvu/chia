@@ -2,7 +2,7 @@ import os, errno, sys
 import cv2
 import logging
 import numpy as np
-from random import random
+import random
 from AnnotationTransformer import AnnotationTransformer
 from Rectangle import Rectangle
 
@@ -11,9 +11,11 @@ class AnnotatedImage:
   def __init__(self, configReader, xmlReader, outputFolder):
     """Initialize class"""
     self.configReader = configReader
-    self.baseTransformer = AnnotationTransformer(configReader)
+    self.randomNumberGenerator = random.Random(configReader.randomNumberSeed)
+    self.baseTransformer = AnnotationTransformer(configReader, self.randomNumberGenerator)
     self.baseTransformer.initialize_from_xml(xmlReader)
     self.xmlReader = xmlReader
+    self.xmlFileName = xmlReader.xmlFileName
     self.outputFolder = outputFolder
     # if test, spit out large files, else patches
     self.isTest = self.configReader.pp_isTest
@@ -23,8 +25,15 @@ class AnnotatedImage:
     # counter for shear
     self.shearCounter = 0
 
+    # count valid/invalid poly/crops
+    self.validCropCount = 0
+    self.invalidCropCount = 0
+
     self.generate_scaled_all()
     self.generate_sheared_all()
+
+    logging.info(self.xmlFileName + ": Crop count: Valid: " + str(self.validCropCount) + ", Invalid: " + \
+      str(self.invalidCropCount))
 
   def generate_sheared_all(self):
     """Save all sheared images/patches"""
@@ -35,7 +44,7 @@ class AnnotatedImage:
       outputFilename = os.path.join(
         self.outputFolder, 
         self.baseFileName + "_shr_" + repr(self.shearCounter) + self.baseFileExt)
-      logging.debug("Shearing: " + str(self.shearCounter) + ": " + \
+      logging.debug(self.xmlFileName + ": Shearing: " + str(self.shearCounter) + ": " + \
         str(pt0X) + "," + str(pt0Y) + "; " + \
         str(pt1X) + "," + str(pt1Y) + "; " + \
         str(pt2X) + "," + str(pt2Y) + "; " + \
@@ -60,6 +69,9 @@ class AnnotatedImage:
       (shearedTransformer.imageConstraints.width, shearedTransformer.imageConstraints.height), 
       shearedImage, cv2.INTER_CUBIC)
     self.draw_annotated_bboxes(shearedTransformer, shearedImage, outputFolder, outputFilename)
+    # update counts
+    # NOTE: self.validCropCount is incremented when a crop is written
+    self.invalidCropCount += shearedTransformer.invalidCropCount
 
   def generate_scaled_all(self):
     """Save all scaled images/patches"""
@@ -68,7 +80,7 @@ class AnnotatedImage:
       outputFilename = os.path.join(
         self.outputFolder, 
         self.baseFileName + "_scl_" + repr(scaleFactor) + self.baseFileExt)
-      logging.debug("Scaling: " + str(scaleFactor))
+      logging.debug(self.xmlFileName + ": Scaling: " + str(scaleFactor))
       self.generate_scaled_single(img, self.outputFolder, outputFilename, scaleFactor)
 
   def generate_scaled_single(self, img, outputFolder, outputFilename, scaleFactor):
@@ -78,6 +90,9 @@ class AnnotatedImage:
       (scaledTransformer.imageConstraints.width, scaledTransformer.imageConstraints.height), 
       interpolation = cv2.INTER_CUBIC)
     self.draw_annotated_bboxes(scaledTransformer, scaledImage, outputFolder, outputFilename)
+    # update counts
+    # NOTE: self.validCropCount is incremented when a crop is written
+    self.invalidCropCount += scaledTransformer.invalidCropCount
 
   def show_image(self, annotationTransformer, img):
     """Show image for quick feedback
@@ -108,6 +123,7 @@ class AnnotatedImage:
         color = self.configReader.get_next_color()
         self.draw_bbox(img, label + ":" + str(labelCounter), crop, color, outputPatchname)
         labelCounter += 1
+        self.validCropCount += 1
     if self.isTest:
       cv2.imwrite(outputFilename, img)
 
@@ -123,7 +139,7 @@ class AnnotatedImage:
     tH = pts[2][0][1]
     patch = img[tY0:tH, tX0:tW].copy()
     # tint
-    if self.configReader.pp_tx_tintFraction > random():
+    if self.configReader.pp_tx_tintFraction > self.randomNumberGenerator.random():
       tintForeground = img[tY0:tH, tX0:tW].copy()
       tintForeground[:] = tuple(reversed(color))
       tintBackground = img[tY0:tH, tX0:tW].copy()
