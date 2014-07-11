@@ -101,6 +101,8 @@ def main(argv):
     # if not directory, complain:
     if os.path.isdir(args.input_file):
         labelFile = open(args.output_file + ".csv",'w')
+        notWrittenCSVTopLine = True
+
         wholeFileList = glob.glob(args.input_file + '/*.' + args.ext)
         oldI = 0
         # larger batch size consumes more memory - about 1.5GB/100 files
@@ -118,12 +120,24 @@ def main(argv):
                 # Classify.
                 predictions = classifier.predict(inputs, not args.center_only)
 
+                # write the top row label for CSV file
+                if notWrittenCSVTopLine:
+                    topLineLabel = "Filename"
+                    curScores = predictions[0].tolist()
+                    for cIdx, cScr in enumerate(curScores):
+                        topLineLabel = topLineLabel + ",Class_" + repr(cIdx)
+                    labelFile.write(topLineLabel + "\n")
+                    notWrittenCSVTopLine = False
+
                 # Expand numpy and save labels in file as well
                 for idx, im_f in enumerate(fileList):
+                    printStr = basename(im_f)
                     curScores = predictions[idx].tolist()
-                    curMax = max(curScores)
-                    curClass = curScores.index(curMax)
-                    printStr = basename(im_f) + "," + repr(curMax) + "," + repr(curClass)
+                    for cIdx, cScr in enumerate(curScores):
+                        printStr = printStr + "," + repr(cScr)
+                    # curMax = max(curScores)
+                    # curClass = curScores.index(curMax)
+                    # printStr = basename(im_f) + "," + repr(curMax) + "," + repr(curClass)
                     labelFile.write(printStr + "\n")
                     print printStr
         labelFile.close()
