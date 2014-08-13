@@ -6,10 +6,10 @@ import java.awt.*;
 
 import javax.swing.border.*;
 
-import uk.co.caprica.vlcj.player.MediaPlayerFactory;
-import uk.co.caprica.vlcj.player.embedded.EmbeddedMediaPlayer;
+import com.zigvu.video.annotation.Annotator;
 
 
+@SuppressWarnings("serial")
 public class AnnotationView extends JPanel {
 	
 	public JMenuBar menuBar;
@@ -21,7 +21,8 @@ public class AnnotationView extends JPanel {
 	
 	private int logoListWidth = 150;
 	
-	public AnnotationView(int width, int height) {
+	public AnnotationView(int width, int height, boolean videoMode) {
+		Annotator.log(Annotator.logInfo, "AnnotationView: Setting up");
 		this.setLayout(new BorderLayout(0, 0));
 
 		// Set Menu
@@ -46,9 +47,11 @@ public class AnnotationView extends JPanel {
 				
 		videoLayeredPane = new VideoLayeredPane(width,height);
 		topPanelLayerContainer.add(videoLayeredPane);
-		
-		videoPlayer = new VideoPlayer(width,height);
-		videoLayeredPane.setVideoPlayer(videoPlayer);
+
+		if (videoMode){
+			videoPlayer = new VideoPlayer(width,height);
+			videoLayeredPane.setVideoPlayer(videoPlayer);
+		}
 		
 		// Panel to hold LogoList
 		JPanel topPanelScrollContainer = new JPanel();
@@ -63,7 +66,7 @@ public class AnnotationView extends JPanel {
 		bottomPanel.setBorder(new BevelBorder(BevelBorder.LOWERED, Color.GRAY, Color.DARK_GRAY, Color.LIGHT_GRAY, Color.WHITE));
 		this.add(bottomPanel, BorderLayout.SOUTH);
 		
-		navigationPanel = new NavigationPanel(videoPlayer);
+		navigationPanel = new NavigationPanel(videoPlayer, videoMode);
 		navigationPanel.setBorder(new CompoundBorder(new EmptyBorder(5, 5, 5, 5), new MatteBorder(1, 1, 1, 1, (Color) new Color(128, 128, 128))));
 		bottomPanel.add(navigationPanel, BorderLayout.CENTER);
 		

@@ -12,7 +12,7 @@ class AnnotationTransformer:
     self.validCropCount = 0
     self.invalidCropCount = 0
     self.imageConstraints = None
-    self.xmlFileName = None
+    self.annotationFileName = None
     self.transformerType = None # "None", "Scale", "Shear"
     self.annotations = {}
 
@@ -24,13 +24,13 @@ class AnnotationTransformer:
     polyArea = poly.area
     if (polyArea / patchArea) < self.configReader.pp_minObjectAreaFraction:
       self.invalidPolyCount += 1
-      logging.debug(self.xmlFileName + ": Invalid: Poly too small: " + str(poly))
+      logging.debug(self.annotationFileName + ": Invalid: Poly too small: " + str(poly))
       return False
     # ensure poly has acceptable shear angle - skip for non-shearing functions
     if ((self.transformerType == "Shear") and 
       (abs(poly.angle) > abs(self.configReader.pp_tx_maxShearAngle))):
       self.invalidPolyCount += 1
-      logStr = (self.xmlFileName + ": Invalid: Poly angle %.2f for label " + label + " too large") % (poly.angle)
+      logStr = (self.annotationFileName + ": Invalid: Poly angle %.2f for label " + label + " too large") % (poly.angle)
       logging.debug(logStr)
       return False
     self.validPolyCount += 1
@@ -41,7 +41,7 @@ class AnnotationTransformer:
     # ensure the crop falls within the image rectangle
     if not self.imageConstraints.contains(crop):
       self.invalidCropCount += 1
-      logging.debug(self.xmlFileName + ": Invalid: Poly out of image: " + str(crop))
+      logging.debug(self.annotationFileName + ": Invalid: Poly out of image: " + str(crop))
       return False
     # get padding bounds
     paddedCrop = crop.get_smaller_rectangle(self.configReader.pp_edgePixelPadding)
@@ -49,7 +49,7 @@ class AnnotationTransformer:
     partialObjectFraction = poly.intersection(paddedCrop).area / poly.area
     if partialObjectFraction < self.configReader.pp_partialObjectFraction:
       self.invalidCropCount += 1
-      logStr = (self.xmlFileName + ": Invalid: Poly fraction %.2f too small: " + str(paddedCrop)) % (partialObjectFraction)
+      logStr = (self.annotationFileName + ": Invalid: Poly fraction %.2f too small: " + str(paddedCrop)) % (partialObjectFraction)
       logging.debug(logStr)
       return False
     # ensure that another logo doesn't have more than noise_object_fraction area visible
@@ -59,11 +59,11 @@ class AnnotationTransformer:
       if annoLabel != label:
         noiseObjectFraction = annoPoly.intersection(crop).area / annoPoly.area
         if noiseObjectFraction > self.configReader.pp_noiseObjectFraction:
-          logStr = (self.xmlFileName + ": Invalid: Noise fraction %.2f too high for label: " + annoLabel) % (noiseObjectFraction)
+          logStr = (self.annotationFileName + ": Invalid: Noise fraction %.2f too high for label: " + annoLabel) % (noiseObjectFraction)
           logging.debug(logStr)
           self.invalidCropCount += 1
           return False
-    logging.debug(self.xmlFileName + ": Valid  : " + str(crop))
+    logging.debug(self.annotationFileName + ": Valid  : " + str(crop))
     # Note: self.validCropCount is incremented when crop is added in add_annotations
     return True
 
@@ -79,7 +79,7 @@ class AnnotationTransformer:
     for i, annotation in self.annotations.iteritems():
       label = annotation['label']
       poly = annotation['poly']
-      logging.debug(self.xmlFileName + ": Label: " + label + "; Poly: " + str(poly))
+      logging.debug(self.annotationFileName + ": Label: " + label + "; Poly: " + str(poly))
 
       if self.is_poly_valid(label, poly):
         jiggleWindows = self.generate_poly_jiggle(label, poly)
@@ -99,8 +99,8 @@ class AnnotationTransformer:
     minX = 0 if minX < 0 else minX
     minY = 0 if minY < 0 else minY
 
-    #logging.debug(self.xmlFileName + ": Poly center x: " + str(poly.centerX) + ", y: " + str(poly.centerY))
-    #logging.debug(self.xmlFileName + ": Minx: " + str(minX) + ", MinY: " + str(minY) + ", MaxX: " + str(maxX) + ", MaxY: " + str(maxY))
+    #logging.debug(self.annotationFileName + ": Poly center x: " + str(poly.centerX) + ", y: " + str(poly.centerY))
+    #logging.debug(self.annotationFileName + ": Minx: " + str(minX) + ", MinY: " + str(minY) + ", MaxX: " + str(maxX) + ", MaxY: " + str(maxY))
     for stepXPixel in range(minX, maxX, self.configReader.pp_tx_minPixelMove):
       for stepYPixel in range(minY, maxY, self.configReader.pp_tx_minPixelMove):
         crop = Rectangle([
@@ -117,13 +117,13 @@ class AnnotationTransformer:
       jiggleWindows = jiggleWindows[0:self.configReader.pp_tx_maxNumJiggles]
     return jiggleWindows
 
-  def initialize_from_xml(self, xmlReader):
+  def initialize_from_file(self, annotationReader):
     """Initialize all bounding boxes and labels from XML file"""
-    self.set_image_constraints(xmlReader.get_image_dimensions())
-    self.xmlFileName = xmlReader.xmlFileName
-    objNames = xmlReader.get_object_names()
+    self.set_image_constraints(annotationReader.get_image_dimensions())
+    self.annotationFileName = annotationReader.annotationFileName
+    objNames = annotationReader.get_object_names()
     for objName in objNames:
-      bboxes = xmlReader.get_rectangles(objName)
+      bboxes = annotationReader.get_rectangles(objName)
       for bbox in bboxes:
         self.add_annotation(objName, bbox)
 
@@ -141,7 +141,7 @@ class AnnotationTransformer:
   def get_scaled_copy(self, scaleFactor):
     """Generate scaled copy of this class"""
     scaledTransformer = AnnotationTransformer(self.configReader, self.randomNumberGenerator)
-    scaledTransformer.xmlFileName = self.xmlFileName
+    scaledTransformer.annotationFileName = self.annotationFileName
     scaledTransformer.transformerType = "Scale"
     # scale image
     scaledImageSize = self.imageConstraints.get_scaled_rectangle(scaleFactor)
@@ -156,7 +156,7 @@ class AnnotationTransformer:
   def get_sheared_copy(self, pt1LR, pt1UD, pt2LR, pt2UD, pt3LR, pt3UD, pt4LR, pt4UD):
     """Generate sheared copy of this class"""
     shearedTransformer = AnnotationTransformer(self.configReader, self.randomNumberGenerator)
-    shearedTransformer.xmlFileName = self.xmlFileName
+    shearedTransformer.annotationFileName = self.annotationFileName
     shearedTransformer.transformerType = "Shear"
     # shear image
     shearedImageSize = self.imageConstraints.get_sheared_rectangle(pt1LR, pt1UD, pt2LR, pt2UD, pt3LR, pt3UD, pt4LR, pt4UD)

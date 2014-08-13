@@ -1,12 +1,12 @@
 package com.zigvu.video.view;
 
 import java.awt.*;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import java.util.List;
 
 import javax.swing.*;
+
+import com.zigvu.video.annotation.Annotator;
 
 @SuppressWarnings("serial")
 public class ResizablePolygon extends JPanel {
@@ -17,19 +17,22 @@ public class ResizablePolygon extends JPanel {
 	/**
 	 * Start new polygon
 	 */
-	public ResizablePolygon(int width, int height, Color bgColor, int logoIndex, String logoName, Polygon p) {
+	public ResizablePolygon(int width, int height, Color bgColor,
+			int logoIndex, String logoName, Polygon p) {
 		this(width, height, bgColor, logoIndex, logoName);
 		poly = new Poly(bgColor, logoName, p);
 	}
-	
-	public ResizablePolygon(int width, int height, Color bgColor, int logoIndex, String logoName) {
+
+	public ResizablePolygon(int width, int height, Color bgColor,
+			int logoIndex, String logoName) {
+		Annotator.log(Annotator.logInfo, "ResizablePolygon: Logo: " + logoName);
 		poly = new Poly(bgColor, logoName);
 		this.logoIndex = logoIndex;
 		this.setBounds(0, 0, width, height);
 		this.setOpaque(false);
 	}
-	
-	public int getLogoIndex(){
+
+	public int getLogoIndex() {
 		return logoIndex;
 	}
 
@@ -63,27 +66,33 @@ public class ResizablePolygon extends JPanel {
 	public boolean isUnSelected() {
 		return poly.isSelected;
 	}
-	
-	public boolean isPolyComplete(){
+
+	public boolean isPolyComplete() {
 		return poly.npoints >= 4;
 	}
-	
-	public void addPointToPoly(int x, int y){
-		if (!isPolyComplete()){
+
+	public void addPointToPoly(int x, int y) {
+		if (!isPolyComplete()) {
 			poly.addPoint(x, y);
 			this.repaint();
 		} else {
 			throw new RuntimeException("Adding points to a full poly");
 		}
 	}
-	
-	public void dragCorner(int x, int y){
+
+	public void dragCorner(int x, int y) {
 		poly.drag(x, y);
 		this.repaint();
 	}
-	
+
 	public Polygon getPoly() {
 		return poly.getPoly();
+	}
+
+	public String toString() {
+		String polyStr = "Index: " + logoIndex + "; ";
+		polyStr += poly.toString();
+		return polyStr;
 	}
 
 	protected class Poly extends Polygon {
@@ -105,8 +114,8 @@ public class ResizablePolygon extends JPanel {
 			backgroundColor = bgColor;
 			name = logoName;
 		}
-				
-		protected Polygon getPoly(){
+
+		protected Polygon getPoly() {
 			Polygon po = new Polygon();
 			for (int i = 0; i < 4; i++) {
 				po.addPoint(this.xpoints[i], this.ypoints[i]);
@@ -115,21 +124,22 @@ public class ResizablePolygon extends JPanel {
 		}
 
 		@Override
-		public Rectangle getBounds(){
-			if (super.npoints >= 4){
+		public Rectangle getBounds() {
+			if (super.npoints >= 4) {
 				int rh = RECT_ANCHOR_WH;
 				Rectangle ob = super.getBounds();
-				return  new Rectangle(ob.x - rh/2, ob.y - rh/2, ob.width + rh/2, ob.height + rh/2);
+				return new Rectangle(ob.x - rh / 2, ob.y - rh / 2, ob.width
+						+ rh / 2, ob.height + rh / 2);
 			} else {
 				return super.getBounds();
 			}
 		}
-		
+
 		@Override
-		public void addPoint(int x, int y){
+		public void addPoint(int x, int y) {
 			int rh = RECT_ANCHOR_WH;
 			super.addPoint(x, y);
-			rects.add(new Rectangle(x - rh/2, y - rh/2, rh, rh));
+			rects.add(new Rectangle(x - rh / 2, y - rh / 2, rh, rh));
 		}
 
 		@Override
@@ -141,18 +151,19 @@ public class ResizablePolygon extends JPanel {
 			}
 			return cont;
 		}
-		
-		public void drag(int x, int y){
+
+		public void drag(int x, int y) {
 			int rh = RECT_ANCHOR_WH;
 			for (int i = 0; i < rects.size(); i++) {
 				Rectangle rect = rects.get(i);
-				if (rect.contains(new Point(x, y))){
-					//System.out.println("Dragged corner i: " + i + " by x: " + x + ", y: " + y);
+				if (rect.contains(new Point(x, y))) {
+					// System.out.println("Dragged corner i: " + i + " by x: " +
+					// x + ", y: " + y);
 					super.xpoints[i] = x;
 					super.ypoints[i] = y;
 					super.invalidate();
-					rect.x = x - rh/2;
-					rect.y = y - rh/2;
+					rect.x = x - rh / 2;
+					rect.y = y - rh / 2;
 					break;
 				}
 			}
@@ -174,7 +185,7 @@ public class ResizablePolygon extends JPanel {
 				Font f = new Font("Dialog", Font.BOLD, 12);
 				g.setFont(f);
 				g.setColor(Color.BLACK);
-				g.drawString(name, r.x + RECT_ANCHOR_WH, r.y + r.height/2);
+				g.drawString(name, r.x + RECT_ANCHOR_WH, r.y + r.height / 2);
 			}
 			// draw rects for each point
 			g.setColor(selectedColor);
@@ -182,6 +193,17 @@ public class ResizablePolygon extends JPanel {
 				Rectangle rect = rects.get(i);
 				g.drawRect(rect.x, rect.y, rect.width, rect.height);
 			}
+		}
+
+		@Override
+		public String toString() {
+			String polyStr = "[";
+			for (int i = 0; i < this.npoints; i++) {
+				polyStr += "(" + this.xpoints[i] + "," + this.ypoints[i]
+						+ "), ";
+			}
+			polyStr += "]";
+			return polyStr;
 		}
 	}
 }

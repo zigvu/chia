@@ -1,14 +1,11 @@
 package com.zigvu.video.view;
 
 import java.awt.BorderLayout;
-import java.awt.Canvas;
-import java.awt.Color;
-import java.awt.Dimension;
 import java.awt.image.BufferedImage;
 
-import javax.swing.ImageIcon;
-import javax.swing.JLabel;
 import javax.swing.JPanel;
+
+import com.zigvu.video.annotation.Annotator;
 
 import uk.co.caprica.vlcj.component.EmbeddedMediaPlayerComponent;
 import uk.co.caprica.vlcj.player.embedded.EmbeddedMediaPlayer;
@@ -23,6 +20,7 @@ public class VideoPlayer extends JPanel {
 	 * Create the panel.
 	 */
 	public VideoPlayer(int width, int height) {
+		Annotator.log(Annotator.logInfo, "VideoPlayer: Setting up");
 		this.setBounds(0, 0, width, height);
 		this.setOpaque(true);
 		this.setLayout(new BorderLayout());
@@ -36,6 +34,7 @@ public class VideoPlayer extends JPanel {
 	}
 		
 	public void prepareMedia(String mrl){
+		Annotator.log(Annotator.logDebug, "VideoPlayer: play file: " + mrl);
 		mediaPlayer.prepareMedia(mrl);
 	}
 	
@@ -52,8 +51,12 @@ public class VideoPlayer extends JPanel {
         }
         return null;
 	}
-	
-	public Dimension getVideoBounds(){
-		return null;
+
+	public long getTime(){
+        if (mediaPlayer.isPlayable()){
+			pause();
+			return mediaPlayer.getTime();
+        }
+        return -1;
 	}
 }

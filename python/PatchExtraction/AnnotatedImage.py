@@ -8,20 +8,20 @@ from Rectangle import Rectangle
 
 class AnnotatedImage:
   """Processing single image for patch extraction"""
-  def __init__(self, configReader, xmlReader, outputFolder):
+  def __init__(self, configReader, annotationReader, outputFolder):
     """Initialize class"""
     self.configReader = configReader
     self.randomNumberGenerator = random.Random(configReader.randomNumberSeed)
     self.baseTransformer = AnnotationTransformer(configReader, self.randomNumberGenerator)
-    self.baseTransformer.initialize_from_xml(xmlReader)
-    self.xmlReader = xmlReader
-    self.xmlFileName = xmlReader.xmlFileName
+    self.baseTransformer.initialize_from_file(annotationReader)
+    self.annotationReader = annotationReader
+    self.annotationFileName = annotationReader.annotationFileName
     self.outputFolder = outputFolder
     # if test, spit out large files, else patches
     self.isTest = self.configReader.pp_isTest
     # file name prefix helpers
-    self.baseFileName = os.path.splitext(os.path.basename(self.xmlReader.imageFileName))[0]
-    self.baseFileExt = os.path.splitext(os.path.basename(self.xmlReader.imageFileName))[1]
+    self.baseFileName = os.path.splitext(os.path.basename(self.annotationReader.imageFileName))[0]
+    self.baseFileExt = os.path.splitext(os.path.basename(self.annotationReader.imageFileName))[1]
     # counter for shear
     self.shearCounter = 0
 
@@ -32,19 +32,19 @@ class AnnotatedImage:
     self.generate_scaled_all()
     self.generate_sheared_all()
 
-    logging.info(self.xmlFileName + ": Crop count: Valid: " + str(self.validCropCount) + ", Invalid: " + \
+    logging.info(self.annotationFileName + ": Crop count: Valid: " + str(self.validCropCount) + ", Invalid: " + \
       str(self.invalidCropCount))
 
   def generate_sheared_all(self):
     """Save all sheared images/patches"""
     self.shearCounter = 0
-    img = cv2.imread(self.xmlReader.imageFileName)
+    img = cv2.imread(self.annotationReader.imageFileName)
     loopCounter = 0
     for pt0X, pt0Y, pt1X, pt1Y, pt2X, pt2Y, pt3X, pt3Y in self.configReader.pp_tx_shearConfigs:
       outputFilename = os.path.join(
         self.outputFolder, 
         self.baseFileName + "_shr_" + repr(self.shearCounter) + self.baseFileExt)
-      logging.debug(self.xmlFileName + ": Shearing: " + str(self.shearCounter) + ": " + \
+      logging.debug(self.annotationFileName + ": Shearing: " + str(self.shearCounter) + ": " + \
         str(pt0X) + "," + str(pt0Y) + "; " + \
         str(pt1X) + "," + str(pt1Y) + "; " + \
         str(pt2X) + "," + str(pt2Y) + "; " + \
@@ -75,12 +75,12 @@ class AnnotatedImage:
 
   def generate_scaled_all(self):
     """Save all scaled images/patches"""
-    img = cv2.imread(self.xmlReader.imageFileName)
+    img = cv2.imread(self.annotationReader.imageFileName)
     for scaleFactor in self.configReader.pp_tx_scales:
       outputFilename = os.path.join(
         self.outputFolder, 
         self.baseFileName + "_scl_" + repr(scaleFactor) + self.baseFileExt)
-      logging.debug(self.xmlFileName + ": Scaling: " + str(scaleFactor))
+      logging.debug(self.annotationFileName + ": Scaling: " + str(scaleFactor))
       self.generate_scaled_single(img, self.outputFolder, outputFilename, scaleFactor)
 
   def generate_scaled_single(self, img, outputFolder, outputFilename, scaleFactor):
