@@ -7,6 +7,7 @@
 #include <cuda_runtime.h>
 
 #include <string>
+#include <time.h>
 
 #include "caffe/caffe.hpp"
 
@@ -18,6 +19,10 @@ int main(int argc, char** argv) {
     LOG(ERROR) << "Usage: finetune_net solver_proto_file pretrained_net";
     return 1;
   }
+  time_t timerBegin;
+  time_t timerEnd;
+  double totalTime;
+  time(&timerBegin);
 
   SolverParameter solver_param;
   ReadProtoFromTextFileOrDie(argv[1], &solver_param);
@@ -28,6 +33,10 @@ int main(int argc, char** argv) {
   solver.net()->CopyTrainedLayersFrom(string(argv[2]));
   solver.Solve();
   LOG(INFO) << "Optimization Done.";
+
+  time(&timerEnd);
+  totalTime = difftime(timerEnd, timerBegin);
+  LOG(ERROR) << "Total time spent: " << totalTime;
 
   return 0;
 }

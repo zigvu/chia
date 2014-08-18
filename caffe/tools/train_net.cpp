@@ -8,6 +8,7 @@
 #include <cuda_runtime.h>
 
 #include <cstring>
+#include <time.h>
 
 #include "caffe/caffe.hpp"
 
@@ -19,6 +20,10 @@ int main(int argc, char** argv) {
     LOG(ERROR) << "Usage: train_net solver_proto_file [resume_point_file]";
     return 1;
   }
+  time_t timerBegin;
+  time_t timerEnd;
+  double totalTime;
+  time(&timerBegin);
 
   SolverParameter solver_param;
   ReadProtoFromTextFileOrDie(argv[1], &solver_param);
@@ -32,6 +37,10 @@ int main(int argc, char** argv) {
     solver.Solve();
   }
   LOG(INFO) << "Optimization Done.";
+
+  time(&timerEnd);
+  totalTime = difftime(timerEnd, timerBegin);
+  LOG(ERROR) << "Total time spent: " << totalTime;
 
   return 0;
 }

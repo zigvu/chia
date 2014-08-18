@@ -16,6 +16,7 @@
 #include <vector>
 #include <fstream>
 #include <iostream>
+#include <time.h>
 
 #include "caffe/caffe.hpp"
 
@@ -27,6 +28,10 @@ int main(int argc, char** argv) {
         << "[CPU/GPU] [Device ID]";
     return 1;
   }
+  time_t timerBegin;
+  time_t timerEnd;
+  double totalTime;
+  time(&timerBegin);
 
   Caffe::set_phase(Caffe::TEST);
 
@@ -74,6 +79,10 @@ int main(int argc, char** argv) {
     }
   }
   csvFile.close();
+
+  time(&timerEnd);
+  totalTime = difftime(timerEnd, timerBegin);
+  LOG(ERROR) << "Total time spent: " << totalTime;
 
   return 0;
 }
