@@ -7,8 +7,6 @@
 	<classpathentry kind="lib" path="vlcj-3.0.1-javadoc.jar"/>
 	<classpathentry kind="lib" path="vlcj-3.0.1-sources.jar"/>
 	<classpathentry kind="lib" path="vlcj-3.0.1.jar"/>
-	<classpathentry kind="lib" path="/vlcj/jna-3.5.2.jar"/>
-	<classpathentry kind="lib" path="/vlcj/platform-3.5.2.jar"/>
 	<classpathentry kind="lib" path="commons-cli-1.2/commons-cli-1.2-javadoc.jar"/>
 	<classpathentry kind="lib" path="commons-cli-1.2/commons-cli-1.2-sources.jar"/>
 	<classpathentry kind="lib" path="commons-cli-1.2/commons-cli-1.2.jar"/>
