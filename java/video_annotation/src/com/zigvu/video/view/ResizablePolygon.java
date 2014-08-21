@@ -184,7 +184,7 @@ public class ResizablePolygon extends JPanel {
 				Rectangle r = this.getBounds();
 				Font f = new Font("Dialog", Font.BOLD, 12);
 				g.setFont(f);
-				g.setColor(Color.BLACK);
+				g.setColor(Color.GRAY);
 				g.drawString(name, r.x + RECT_ANCHOR_WH, r.y + r.height / 2);
 			}
 			// draw rects for each point

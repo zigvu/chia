@@ -77,7 +77,7 @@ public class AnnotationController {
 				}
 			}
 		}
-		view.navigationPanel.fileNameLabel.setText("File: "
+		view.navigationPanel.longLabel.setText("File: "
 				+ annotationRW.getAnnotationFileName());
 		Annotator.log(Annotator.logDebug, "AnnotationController: Read file: "
 				+ annotationRW.getAnnotationFileName());
@@ -286,7 +286,7 @@ public class AnnotationController {
 					return;
 				}
 				if (videoMode) {
-					view.navigationPanel.previousFrame();
+					view.navigationPanel.seekShortBackward();
 				} else {
 					model.previousFrame();
 					setFrame();
@@ -305,7 +305,7 @@ public class AnnotationController {
 					return;
 				}
 				if (videoMode) {
-					view.navigationPanel.nextFrame();
+					view.navigationPanel.seekShortForward();
 				} else {
 					model.nextFrame();
 					setFrame();

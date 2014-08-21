@@ -16,6 +16,7 @@ import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JSlider;
+import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
 
 import com.zigvu.video.annotation.Annotator;
@@ -27,7 +28,7 @@ import uk.co.caprica.vlcj.player.embedded.EmbeddedMediaPlayer;
 public class NavigationPanel extends JPanel {
 
 	public JSlider slider;
-	public JLabel fileNameLabel;
+	public JLabel longLabel;
 	public JLabel timeLabel;
 	public JButton fastSeekBackward;
 	public JButton seekBackward;
@@ -104,20 +105,12 @@ public class NavigationPanel extends JPanel {
 		gbc_lblMs.insets = new Insets(0, 0, 5, 0);
 		gbc_lblMs.gridx = 7;
 		gbc_lblMs.gridy = 0;
-
-		fileNameLabel = new JLabel("File: ");
-		GridBagConstraints gbc_lblFn = new GridBagConstraints();
-		gbc_lblMs.insets = new Insets(0, 0, 5, 0);
-		gbc_lblMs.gridx = 0;
-		gbc_lblMs.gridy = 0;
-		gbc_slider.gridwidth = 8;
+		gbc_lblMs.gridwidth = 1;
 
 		// add component relevant to video
 		if (videoMode) {
 			this.add(slider, gbc_slider);
 			this.add(timeLabel, gbc_lblMs);
-		} else {
-			this.add(fileNameLabel, gbc_lblFn);
 		}
 
 		fastSeekBackward = new JButton("");
@@ -207,6 +200,14 @@ public class NavigationPanel extends JPanel {
 		gbc_fastSeekFoward.gridx = 7;
 		gbc_fastSeekFoward.gridy = 1;
 		this.add(fastSeekForward, gbc_fastSeekFoward);
+		
+		longLabel = new JLabel("");
+		longLabel.setHorizontalTextPosition(SwingConstants.LEFT);
+		GridBagConstraints gbc_lblLn = new GridBagConstraints();
+		gbc_lblLn.insets = new Insets(0, 0, 5, 0);
+		gbc_lblLn.gridx = 0;
+		gbc_lblLn.gridy = 2;
+		this.add(longLabel, gbc_lblLn);
 	}
 
 	public void disableComponentsForFrameTagging() {
@@ -259,7 +260,7 @@ public class NavigationPanel extends JPanel {
 		rewindFrame.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mousePressed(MouseEvent e) {
-				previousFrame();
+				seekShortBackward();
 			}
 		});
 		playFrame.addMouseListener(new MouseAdapter() {
@@ -330,7 +331,7 @@ public class NavigationPanel extends JPanel {
 		skip(-SKIP_TIME_MS_NORMAL);
 	}
 
-	public void previousFrame() {
+	public void seekShortBackward() {
 		skipWithoutUpdate(-SKIP_TIME_MS_ONE_FRAME);
 	}
 
@@ -344,6 +345,10 @@ public class NavigationPanel extends JPanel {
 
 	public void nextFrame() {
 		mediaPlayer.nextFrame();
+	}
+	
+	public void seekShortForward() {
+		skipWithoutUpdate(SKIP_TIME_MS_ONE_FRAME);
 	}
 
 	public void seekForward() {
@@ -360,6 +365,7 @@ public class NavigationPanel extends JPanel {
 			playRate = RATE_MAX_MULTIPLE;
 		}
 		mediaPlayer.setRate(playRate);
+		this.updatePlayRate();
 	}
 
 	public void playSlowerRate() {
@@ -368,17 +374,20 @@ public class NavigationPanel extends JPanel {
 			playRate = RATE_MIN_MULTIPLE;
 		}
 		mediaPlayer.setRate(playRate);
+		this.updatePlayRate();
 	}
 
 	public void playNormalRate() {
 		playRate = RATE_NORMAL_MULTIPLE;
 		mediaPlayer.setRate(playRate);
+		this.updatePlayRate();
 	}
 
 	// helper routines:
 	private void play() {
 		if (!mediaPlayer.isPlaying()) {
 			mediaPlayer.play();
+			this.updatePlayRate();
 		}
 		if (!mediaPlayer.isPlayable()) {
 			mediaPlayer.stop();
@@ -440,6 +449,10 @@ public class NavigationPanel extends JPanel {
 
 	private void updatePosition(int value) {
 		slider.setValue(value);
+	}
+	
+	private void updatePlayRate(){
+		longLabel.setText("Play rate: " + String.format("%.2f", playRate));
 	}
 
 	private void skip(int skipTime) {
