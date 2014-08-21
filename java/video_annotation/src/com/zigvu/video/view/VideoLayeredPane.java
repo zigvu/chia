@@ -63,6 +63,7 @@ public class VideoLayeredPane extends JLayeredPane {
 		}
 		this.validate();
 		this.repaint();
+		curLogoIndex = -1;
 	}
 
 	public void enableAllLayers() {
@@ -179,7 +180,8 @@ public class VideoLayeredPane extends JLayeredPane {
 				currentlySelectedPoly = null;
 			}
 			// if right click, select previously made poly
-			if (e.getButton() == MouseEvent.BUTTON1) {
+			if (e.getButton() == MouseEvent.BUTTON2
+					|| e.getButton() == MouseEvent.BUTTON3) {
 				// discard any new poly that were being made
 				resetNewPoly();
 				for (ResizablePolygon rePoly : rePolys) {
@@ -192,8 +194,7 @@ public class VideoLayeredPane extends JLayeredPane {
 				}
 			}
 			// if left click, add new points to creating poly
-			if (e.getButton() == MouseEvent.BUTTON2
-					|| e.getButton() == MouseEvent.BUTTON3) {
+			if (e.getButton() == MouseEvent.BUTTON1) {
 				Annotator.log(Annotator.logInfo, "VideoLayeredPane: Click: ("
 						+ e.getX() + ", " + e.getY() + ")");
 				addPointToNewPoly(e.getX(), e.getY());

@@ -10,5 +10,7 @@
 	<classpathentry kind="lib" path="commons-cli-1.2/commons-cli-1.2-javadoc.jar"/>
 	<classpathentry kind="lib" path="commons-cli-1.2/commons-cli-1.2-sources.jar"/>
 	<classpathentry kind="lib" path="commons-cli-1.2/commons-cli-1.2.jar"/>
+	<classpathentry kind="lib" path="jna-3.5.2.jar"/>
+	<classpathentry kind="lib" path="platform-3.5.2.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

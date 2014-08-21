@@ -55,7 +55,6 @@ public class LogoList extends JScrollPane {
 
 	public void enableComponent() {
 		AnnotationView.enableComponents(this, true);
-		logoList.setSelectedIndex(0);
 	}
 
 	public void disableComponent() {

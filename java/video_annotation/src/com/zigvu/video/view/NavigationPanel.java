@@ -42,8 +42,8 @@ public class NavigationPanel extends JPanel {
 
 	// media helper variables
 	private static final int SKIP_TIME_MS_NORMAL = 10 * 1000;
-	private static final int SKIP_TIME_MS_FAST = 5 * SKIP_TIME_MS_NORMAL;
-	private static final int SKIP_TIME_MS_ONE_FRAME = 100;
+	private static final int SKIP_TIME_MS_FAST = 6 * SKIP_TIME_MS_NORMAL;
+	private static final int SKIP_TIME_MS_ONE_FRAME = 3 * 1000;
 	private static final float RATE_MAX_MULTIPLE = (float) 5.0;
 	private static final float RATE_MIN_MULTIPLE = (float) 0.01;
 	private static final float RATE_NORMAL_MULTIPLE = (float) 1.0;
