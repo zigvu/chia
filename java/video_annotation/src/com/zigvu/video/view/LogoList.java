@@ -68,6 +68,7 @@ public class LogoList extends JScrollPane {
 		public static final String HTML_3 = "</html>";
 		private int width;
 		private Color selectedItemColor;
+		private int colorTransparency = 150;
 		private String[] colourValues = new String[] { "FF0000", "00FF00",
 				"0000FF", "FFFF00", "FF00FF", "00FFFF", "000000", "800000",
 				"008000", "000080", "808000", "800080", "008080", "808080",
@@ -87,7 +88,7 @@ public class LogoList extends JScrollPane {
 			for (int i = 0; i < colourValues.length; i++) {
 				Color tC = new Color(Integer.parseInt(colourValues[i], 16));
 				cellColors[i] = new Color(tC.getRed(), tC.getGreen(),
-						tC.getBlue(), 50);
+						tC.getBlue(), colorTransparency);
 			}
 		}
 
