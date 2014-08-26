@@ -8,11 +8,16 @@ import java.util.ArrayList;
 import com.zigvu.video.annotation.Annotator;
 
 public class LogoListReader {
+	String filename;
 	ArrayList<String> logoList;
 
-	public LogoListReader(String filename) throws IOException {
+	public LogoListReader(String filename) {
 		Annotator.log(Annotator.logInfo, "LogoListReader: Read from file: "
 				+ filename);
+		this.filename = filename;
+	}
+	
+	public void reloadLogoListFromFile() throws IOException {
 		logoList = new ArrayList<String>();
 		BufferedReader br = new BufferedReader(new FileReader(filename));
 		String line = br.readLine();

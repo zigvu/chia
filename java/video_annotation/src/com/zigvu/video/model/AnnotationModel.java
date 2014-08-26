@@ -28,12 +28,7 @@ public class AnnotationModel {
 		this.commandLine = commandLine;
 		this.mediaInfo = mediaInfo;
 		videoMode = commandLine.videoMode;
-		try {
-			logoListR = new LogoListReader(this.commandLine.logoListFile);
-		} catch (IOException e) {
-			System.out.println("Error reading logo list from file");
-			e.printStackTrace();
-		}
+		logoListR = new LogoListReader(this.commandLine.logoListFile);
 		if (!videoMode) {
 			annotationFiles = new ArrayList<String>();
 			File[] annoFiles = (new File(commandLine.annotationsFolder))

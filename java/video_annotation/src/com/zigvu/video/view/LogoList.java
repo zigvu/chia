@@ -36,6 +36,10 @@ public class LogoList extends JScrollPane {
 					+ item);
 		}
 	}
+	
+	public void removeAllItems() {
+		itemList.clear();
+	}
 
 	public Color getColor(int index) {
 		return cellRenderer.getCellColor(index);

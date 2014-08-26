@@ -12,7 +12,7 @@ import com.zigvu.video.annotation.Annotator;
 @SuppressWarnings("serial")
 public class AnnotationView extends JPanel {
 	
-	public JMenuBar menuBar;
+	public MenuBar menuBar;
 	public VideoLayeredPane videoLayeredPane;
 	public VideoPlayer videoPlayer;
 	public LogoList logoList;
@@ -25,15 +25,8 @@ public class AnnotationView extends JPanel {
 		Annotator.log(Annotator.logInfo, "AnnotationView: Setting up");
 		this.setLayout(new BorderLayout(0, 0));
 
-		// Set Menu
-		menuBar = new JMenuBar();
-		JMenu mnFile = new JMenu("File");
-		menuBar.add(mnFile);
-		
-		JMenuItem mntmOpenVideo = new JMenuItem("Open Video");
-		mnFile.add(mntmOpenVideo);		
-		JMenuItem mntmSaveAll = new JMenuItem("Save All");
-		mnFile.add(mntmSaveAll);
+		// Set menu bar
+		menuBar = new MenuBar();
 		
 		// Top panel has video/drawing panes and logo list
 		JPanel topPanel = new JPanel(new BorderLayout(0, 0));

@@ -4,6 +4,7 @@ import java.awt.Color;
 import java.awt.Polygon;
 import java.awt.event.*;
 import java.awt.image.BufferedImage;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -28,11 +29,7 @@ public class AnnotationController {
 		videoMode = model.videoMode;
 
 		// Populate logo list
-		ArrayList<String> logoLabels = model.logoListR.getLogoLabels();
-		for (String logoLabel : logoLabels) {
-			view.logoList.addItem(logoLabel);
-		}
-
+		resetLogoList();
 		view.settingsPanel.disableComponent();
 		view.logoList.disableComponent();
 		currentlyAnnotating = false;
@@ -40,6 +37,7 @@ public class AnnotationController {
 		// attach listeners
 		view.logoList.addLogoListListener(new LogoListListener());
 		view.settingsPanel.addSettingsListener(new SettingsListener());
+		view.menuBar.addMenuBarListener(new MenuBarListener());
 
 		// set keyboard bindings
 		InputMap inputMap = view
@@ -52,6 +50,21 @@ public class AnnotationController {
 			view.navigationPanel
 					.addNavigationListener(new NavigationListener());
 			setFrame();
+		}
+	}
+	
+	private void resetLogoList(){
+		view.logoList.removeAllItems();
+		try {
+			Annotator.log(Annotator.logInfo, "AnnotationController: Load logo list");
+			model.logoListR.reloadLogoListFromFile();
+		} catch (IOException e) {
+			System.out.println("Error reading logo list from file");
+			e.printStackTrace();
+		}
+		ArrayList<String> logoLabels = model.logoListR.getLogoLabels();
+		for (String logoLabel : logoLabels) {
+			view.logoList.addItem(logoLabel);
 		}
 	}
 
@@ -222,6 +235,18 @@ public class AnnotationController {
 			view.settingsPanel.disableComponent();
 			setFrame();
 			currentlyAnnotating = false;
+		}
+	}
+	
+	class MenuBarListener implements ActionListener {
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			if (e.getSource() == view.menuBar.mntmOpenVideo) {
+				if (currentlyAnnotating) {
+					return;
+				}
+				resetLogoList();
+			}
 		}
 	}
 
@@ -421,6 +446,17 @@ public class AnnotationController {
 					return;
 				}
 				view.settingsPanel.btnClearOneAnnotation.doClick();
+			}
+		});
+		
+		inputMap.put(KeyStroke.getKeyStroke('r'), "keyReloadLogoList");
+		actionMap.put("keyReloadLogoList", new AbstractAction() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				if (currentlyAnnotating) {
+					return;
+				}
+				resetLogoList();
 			}
 		});
 	}
