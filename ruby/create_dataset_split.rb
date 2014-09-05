@@ -23,8 +23,7 @@ if __FILE__ == $0
 	outputFolder = ARGV[2]
 
 	configReader = ConfigReader.new(config)
-	outputRectangleSize = configReader.outputRectangleSize
-	dc = DatasetCreator.new(inputFolder, outputFolder, outputRectangleSize)
+	dc = DatasetCreator.new(inputFolder, outputFolder, configReader)
 
 	if configReader.datasetTypeSplitData
 		datasetSplit = configReader.datasetSplit	
