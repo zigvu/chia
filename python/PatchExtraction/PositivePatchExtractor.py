@@ -1,53 +1,54 @@
 import os, glob, sys
 import logging
-from multiprocessing import Process
+from multiprocessing import Pool
 from ConfigReader import ConfigReader
 from XMLReader import XMLReader
 from JSONReader import JSONReader
 from AnnotatedImage import AnnotatedImage
 
+def process_single_xml((xmlFileName, configFileName, baseImageFolder, outputFolder)):
+  """Process single annotation xml file"""
+  logging.info("Start working on: " + os.path.basename(xmlFileName))
+  xmlReader = XMLReader(xmlFileName, baseImageFolder)
+  configReader = ConfigReader(configFileName)
+  annotatedImage = AnnotatedImage(configReader, xmlReader, outputFolder)
+  logging.info("Done  working on: " + os.path.basename(xmlFileName))
+
+def process_single_json((jsonFileName, configFileName, baseImageFolder, outputFolder)):
+  """Process single annotation xml file"""
+  logging.info("Start working on: " + os.path.basename(jsonFileName))
+  jsonReader = JSONReader(jsonFileName, baseImageFolder)
+  configReader = ConfigReader(configFileName)
+  annotatedImage = AnnotatedImage(configReader, jsonReader, outputFolder)
+  logging.info("Done  working on: " + os.path.basename(jsonFileName))
+
 class PositivePatchExtractor:
   """Converts a folder of positive annotations into patches"""
   def __init__(self, configFileName, baseFolder, outputFolder):
     configReader = ConfigReader(configFileName)
+    configReader.dump_config()
     logging.basicConfig(format='{%(filename)s:%(lineno)d} %(levelname)s - %(message)s', 
       level=configReader.pp_log_level)
     baseAnnotationFolder = os.path.join(baseFolder, configReader.pp_AnnotationsFolder)
     baseImageFolder = os.path.join(baseFolder, configReader.pp_ImagesFolder)
 
-    multipleProcesses = []
-    # iterate through all files in annotation folder
+    xmlArgsArray = []
     for xmlFileName in glob.glob(baseAnnotationFolder + "/*.xml"):
-      #self.process_single_xml(xmlFileName, configReader, baseImageFolder, outputFolder)      
-      p = Process(target=self.process_single_xml, args=(xmlFileName, configReader, baseImageFolder, outputFolder,))
-      multipleProcesses += [p]
+      # process_single_xml(xmlFileName, configFileName, baseImageFolder, outputFolder)
+      ar = (xmlFileName, configFileName, baseImageFolder, outputFolder,)
+      xmlArgsArray += [ar]
+
+    jsonArgsArray = []
     for jsonFileName in glob.glob(baseAnnotationFolder + "/*.json"):
-      #self.process_single_json(jsonFileName, configReader, baseImageFolder, outputFolder)      
-      p = Process(target=self.process_single_json, args=(jsonFileName, configReader, baseImageFolder, outputFolder,))
-      multipleProcesses += [p]
+      # process_single_json(jsonFileName, configFileName, baseImageFolder, outputFolder)      
+      ar = (jsonFileName, configFileName, baseImageFolder, outputFolder,)
+      jsonArgsArray += [ar]
 
-    numOfThreads = configReader.numOfProcessors
-    for i in xrange(0, len(multipleProcesses), numOfThreads):
-      processArr = multipleProcesses[i:(i + numOfThreads)]
-      for p in processArr:
-        p.start()
-      for p in processArr:
-        p.join()
-
-    # DO NOT DELETE: easy to test out individual failing files
-    # xmlFileName = '/home/evan/Vision/Scripts/TextGeneration/temp/annotation_matlab/multiClass/annotations/IAyuiE41Kcc_frame_115.xml'
-    # self.process_single_xml(xmlFileName, configReader, baseImageFolder, outputFolder)
-
-  def process_single_xml(self, xmlFileName, configReader, baseImageFolder, outputFolder):
-    """Process single annotation xml file"""
-    logging.info("Start working on: " + os.path.basename(xmlFileName))
-    xmlReader = XMLReader(xmlFileName, baseImageFolder)
-    annotatedImage = AnnotatedImage(configReader, xmlReader, outputFolder)
-    logging.info("Done  working on: " + os.path.basename(xmlFileName))
-
-  def process_single_json(self, jsonFileName, configReader, baseImageFolder, outputFolder):
-    """Process single annotation xml file"""
-    logging.info("Start working on: " + os.path.basename(jsonFileName))
-    jsonReader = JSONReader(jsonFileName, baseImageFolder)
-    annotatedImage = AnnotatedImage(configReader, jsonReader, outputFolder)
-    logging.info("Done  working on: " + os.path.basename(jsonFileName))
+    # use process pool to manage tasks in queue
+    pool = Pool(processes = configReader.numOfProcessors)
+    if len(xmlArgsArray) > 0:
+      pool.map(process_single_xml, xmlArgsArray)
+    if len(jsonArgsArray) > 0:
+      pool.map(process_single_json, jsonArgsArray)
+    pool.close()
+    pool.join()

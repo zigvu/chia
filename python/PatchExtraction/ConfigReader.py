@@ -9,7 +9,8 @@ class ConfigReader:
   """Reads YAML config file and allows easy accessor to config attributes"""
   def __init__(self, configFileName):
     """Initlize config from YAML file"""
-    config = yaml.load(open(configFileName, "r"))
+    self.configFileName = configFileName
+    config = yaml.load(open(self.configFileName, "r"))
 
     width = int(config['output_width'])
     height = int(config['output_height'])
@@ -68,9 +69,10 @@ class ConfigReader:
     self.pp_tx_tintFraction = float(transformations['blending']['tint_fraction'])
     self.pp_tx_tintBlendFraction = float(transformations['blending']['blend_fraction'])
 
+  def dump_config(self):
     # spit the config first - logging creates problems it seems
     print "Config dump"
-    configFile = open(configFileName)
+    configFile = open(self.configFileName)
     for line in configFile:
       print line.rstrip("\n")
     configFile.close()
