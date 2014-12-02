@@ -15,7 +15,7 @@ def process_single_xml((xmlFileName, configFileName, baseImageFolder, outputFold
   logging.info("Done  working on: " + os.path.basename(xmlFileName))
 
 def process_single_json((jsonFileName, configFileName, baseImageFolder, outputFolder)):
-  """Process single annotation xml file"""
+  """Process single annotation json file"""
   logging.info("Start working on: " + os.path.basename(jsonFileName))
   jsonReader = JSONReader(jsonFileName, baseImageFolder)
   configReader = ConfigReader(configFileName)

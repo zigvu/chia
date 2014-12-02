@@ -1,6 +1,7 @@
 import cv2
 import numpy as np
 import shapely
+from collections import OrderedDict
 from shapely.geometry import Polygon
 from shapely.geometry import Point
 
@@ -57,6 +58,12 @@ class Rectangle(Polygon):
     mat = Rectangle.get_perspective_transform_matrix(origRect, shearedRect)
     return Rectangle.apply_perspective_transform_matrix(self, mat)
 
+  def get_transformed_rectangle(self, baseOrigAnnoRect, newOrigAnnoRect):
+    """Get a new rectangle that effectively transforms this rectangle with the same
+    transformation as is required to take baseOrigAnnoRect to newOrigAnnoRect"""
+    mat = Rectangle.get_perspective_transform_matrix(baseOrigAnnoRect, newOrigAnnoRect)
+    return Rectangle.apply_perspective_transform_matrix(self, mat)
+
   def numpy_format(self):
     """Convert shapely polygon to numpy array"""
     ext = np.asarray(self.exterior)
@@ -67,6 +74,20 @@ class Rectangle(Polygon):
     ext = np.asarray(self.exterior)
     b = np.array(ext[0:4, :], np.int32)
     return b.reshape((-1,1,2))
+
+  def dict_format(self):
+    """Convert to json to save back to file"""
+    ext = np.asarray(self.exterior)
+    js = OrderedDict()
+    js['x0'] = ext[0,0]
+    js['y0'] = ext[0,1]
+    js['x1'] = ext[1,0]
+    js['y1'] = ext[1,1]
+    js['x2'] = ext[2,0]
+    js['y2'] = ext[2,1]
+    js['x3'] = ext[3,0]
+    js['y3'] = ext[3,1]
+    return js
 
   @staticmethod
   def apply_perspective_transform_matrix(srcShape, transformMatrix):

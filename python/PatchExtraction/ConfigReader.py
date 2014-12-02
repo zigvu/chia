@@ -1,4 +1,5 @@
 """ Class to load configuration file."""
+import os, glob, sys, errno
 import yaml
 import random
 import logging
@@ -82,3 +83,25 @@ class ConfigReader:
     return (self.randomWithSeed.randint(0,200), \
       self.randomWithSeed.randint(0,200), \
       self.randomWithSeed.randint(0,200))
+
+
+  @staticmethod
+  def mkdir_p(start_path):
+    """Util to make path"""
+    try:
+      os.makedirs(start_path)
+    except OSError as exc: # Python >2.5
+      if exc.errno == errno.EEXIST and os.path.isdir(start_path):
+        pass
+
+  @staticmethod
+  def rm_rf(start_path):
+    """Util to delete path"""
+    try:
+      if os.path.isdir(start_path):
+        shutil.rmtree(start_path, ignore_errors=True)
+      elif os.path.exists(start_path):
+        os.remove(start_path)
+    except:
+      # do nothing
+      pass
