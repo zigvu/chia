@@ -29,7 +29,7 @@ class AnnotationModifier:
 	def add_base_annotation(self, baseAnnotation, baseRect):
 		"""Add a baseAnnotation to file"""
 		if not (baseAnnotation in self.get_all_base_annotations()):
-			logging.info("Adding base annotation " % baseAnnotation)
+			logging.info("Adding base annotation %s" % baseAnnotation)
 			self.modifications[baseAnnotation] = OrderedDict()
 			self.modifications[baseAnnotation]['base_rect'] = baseRect.dict_format()
 			self.modifications[baseAnnotation]['modifications'] = OrderedDict()
