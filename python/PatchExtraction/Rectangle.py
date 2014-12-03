@@ -16,7 +16,9 @@ class Rectangle(Polygon):
     self.centerX = int(polyCenter.x)
     self.centerY = int(polyCenter.y)
     b = np.asarray(self.exterior)
-    self.angle = np.rad2deg(np.arctan((b[1][1] - b[0][1])/(b[1][0] - b[0][0])))
+    self.angle = 0
+    if (b[1][0] - b[0][0]) != 0:
+      self.angle = np.rad2deg(np.arctan((b[1][1] - b[0][1])/(b[1][0] - b[0][0])))
 
   def get_smaller_rectangle(self, pixelPadding):
     """Get a new rectangle with pixelPadding smaller dimension
@@ -150,6 +152,54 @@ class Rectangle(Polygon):
     if int(b[1]) > 0:
       translateY -= abs(int(b[1]))
     return translateX, translateY
+
+  @staticmethod
+  def rotate_rectangle_for_width_on_xaxis(srcShape):
+    """Rotates the rectangle such that the longer edge fall in x-axis"""
+    # first rotate to counter-clockwise
+    ring = srcShape.exterior
+    if not ring.is_ccw:
+      ring.coords = list(ring.coords)[::-1]
+    b = list(ring.coords)[0:4]
+
+    longestLengthIdx = 0
+    longestLength = -1
+    # find the longest length
+    for i, pt in enumerate(b):
+      dist = Point(pt).distance(Point(b[(i + 1) % 4]))
+      if dist > longestLength:
+        longestLengthIdx = i
+        longestLength = dist
+
+    # we know which side is longest - now, figure out which
+    # corner should go on left
+    if b[longestLengthIdx][0] > b[(longestLengthIdx + 2) % 4][0]:
+      longestLengthIdx = (longestLengthIdx + 2) % 4
+
+    # if this is the top
+    if ((b[longestLengthIdx][1] > b[(longestLengthIdx + 1) % 4][1]) and
+      (b[longestLengthIdx][0] > b[(longestLengthIdx + 1) % 4][0])):
+      longestLengthIdx = (longestLengthIdx + 1) % 4
+    elif ((b[longestLengthIdx][1] > b[(longestLengthIdx + 3) % 4][1]) and
+      (b[longestLengthIdx][0] > b[(longestLengthIdx + 3) % 4][0])):
+      longestLengthIdx = (longestLengthIdx + 3) % 4
+
+    # now longestLengthIdx represents the top right corner in the rect
+
+    # create polygon with correct orientation
+    poly = shapely.geometry.polygon.orient(Polygon([
+      b[longestLengthIdx], 
+      b[(longestLengthIdx + 1) % len(b)],
+      b[(longestLengthIdx + 2) % len(b)],
+      b[(longestLengthIdx + 3) % len(b)]]), 1)
+    # convert to rectangle and return
+    b = np.asarray(poly.exterior)
+    bbox = Rectangle([
+      (b[0][0], b[0][1]),
+      (b[1][0], b[1][1]),
+      (b[2][0], b[2][1]),
+      (b[3][0], b[3][1])])
+    return bbox
   
   @staticmethod
   def get_correctly_rotated_rectangle(srcShape):

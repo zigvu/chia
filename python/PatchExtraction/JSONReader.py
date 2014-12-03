@@ -78,7 +78,7 @@ class JSONReader:
         (int(poly['x1']), int(poly['y1'])),
         (int(poly['x2']), int(poly['y2'])),
         (int(poly['x3']), int(poly['y3']))])
-      return rectangle
+      return Rectangle.rotate_rectangle_for_width_on_xaxis(rectangle)
 
   def save(self, outputJsonFileName = None):
     """Save dict - if outputJsonFileName is not provided, overwrites original file"""
