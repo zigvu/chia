@@ -9,10 +9,10 @@ if __name__ == '__main__':
 		print 'Usage %s <configFile> <annotationFile> <modificationFile> <baseAnnotation> [<modifiedAnnotation>]' % sys.argv[ 0 ]
 		print '\n\n'
 		print '<configFile> config.yaml for settings'
-		print '<annotationFile> File that describes both the original annotation and the modified annotation'
-		print '<modificationFile> File that consolidates all modifications'
-		print '<baseAnnotation> Annotation in annotationFile which needs to be modified'
-		print '<modifiedAnnotation> One or more modifications - if splitting an annotation into multiple'
+		print '<annotationFile> JSON file that describes both the original annotation and the modified annotation'
+		print '<modificationFile> JSON File that consolidates all modifications'
+		print '<baseAnnotation> Annotation name in quotes in annotationFile that needs to be modified'
+		print '<modifiedAnnotation> One or more modified names in quotes - if splitting an annotation into multiple'
 		print '  annotations, supply each of them separating them with spaces'
 		print '\nNote: For bash to not get confused, always enclose annotation strings in "quotes"'
 		sys.exit( 1 )
