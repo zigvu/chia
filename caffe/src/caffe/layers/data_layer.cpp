@@ -39,6 +39,7 @@ void* DataLayerPrefetch(void* layer_pointer) {
     LOG(FATAL) << "Current implementation requires mirror and crop_size to be "
         << "set at the same time.";
   }
+
   // datum scales
   const int channels = layer->datum_channels_;
   const int height = layer->datum_height_;
@@ -134,13 +135,79 @@ void* DataLayerPrefetch(void* layer_pointer) {
       }
       break;
     case DataParameter_DB_LMDB:
-      if (mdb_cursor_get(layer->mdb_cursor_, &layer->mdb_key_,
-              &layer->mdb_value_, MDB_NEXT) != MDB_SUCCESS) {
-        // We have reached the end. Restart from the first.
-        DLOG(INFO) << "Restarting data prefetching from start.";
-        CHECK_EQ(mdb_cursor_get(layer->mdb_cursor_, &layer->mdb_key_,
-                &layer->mdb_value_, MDB_FIRST), MDB_SUCCESS);
+      // EVAN changed: begin
+      // Zigvu chia issue26
+      // https://github.com/zigvu/chia/issues/26
+
+      // Summary: During testing, we are using LMDB as a circular buffer.
+      // the changes below update the read table - allowing the cursor to
+      // always point at the latest data after 
+      // khajuri/VideoReader/VideoDb.cpp writes to it
+
+      // we have curciular buffer only in test mode
+      if (layer->phase_ == Caffe::TEST) {
+        // if we have reached at the end of the current read table
+        if (mdb_cursor_get(layer->mdb_cursor_, &layer->mdb_key_,
+                &layer->mdb_value_, MDB_NEXT) != MDB_SUCCESS) {
+          // renew cursor to get pointer to the new read table
+          DLOG(INFO) << "Renew cursor to check if new data has arrived.";
+          mdb_txn_reset(layer->mdb_txn_);
+          CHECK_EQ(mdb_txn_renew(layer->mdb_txn_), MDB_SUCCESS);
+          CHECK_EQ(mdb_cursor_renew(layer->mdb_txn_, layer->mdb_cursor_), MDB_SUCCESS);
+
+          // to find where we left off in the old read table,
+          // start from the start and iterate until we hit the last stored label
+          CHECK_EQ(mdb_cursor_get(layer->mdb_cursor_, &layer->mdb_key_,
+                  &layer->mdb_value_, MDB_FIRST), MDB_SUCCESS);
+          datum.ParseFromArray(layer->mdb_value_.mv_data,
+            layer->mdb_value_.mv_size);
+          while ((int)datum.label() != (int)top_label[item_id]){
+            // get next data item
+            if (mdb_cursor_get(layer->mdb_cursor_, &layer->mdb_key_,
+                &layer->mdb_value_, MDB_NEXT) != MDB_SUCCESS) {
+              // if we can't find the last stored label, there must not
+              // have been any more data
+              DLOG(INFO) << "Restarting data prefetching from start.";
+              CHECK_EQ(mdb_cursor_get(layer->mdb_cursor_, &layer->mdb_key_,
+                  &layer->mdb_value_, MDB_FIRST), MDB_SUCCESS);
+              break;
+            }
+            // parse datum for label extraction
+            datum.ParseFromArray(layer->mdb_value_.mv_data,
+              layer->mdb_value_.mv_size);
+          }
+          // if we found the last label from old read table
+          if ((int)datum.label() == (int)top_label[item_id]){
+            // if the next item is valid, then the new read table
+            // has more data
+            if (mdb_cursor_get(layer->mdb_cursor_, &layer->mdb_key_,
+                &layer->mdb_value_, MDB_NEXT) != MDB_SUCCESS) {
+              // the new read table is the same as old read table
+              CHECK_EQ(mdb_cursor_get(layer->mdb_cursor_, &layer->mdb_key_,
+                  &layer->mdb_value_, MDB_FIRST), MDB_SUCCESS);
+            }
+          }
+        }
+      } else {
+        // in case of non-test, we revert back to the old code
+        if (mdb_cursor_get(layer->mdb_cursor_, &layer->mdb_key_,
+                &layer->mdb_value_, MDB_NEXT) != MDB_SUCCESS) {
+          // We have reached the end. Restart from the first.
+          DLOG(INFO) << "Restarting data prefetching from start.";
+          CHECK_EQ(mdb_cursor_get(layer->mdb_cursor_, &layer->mdb_key_,
+                  &layer->mdb_value_, MDB_FIRST), MDB_SUCCESS);
+        }
       }
+      // EVAN changed: end
+      // EVAN comment: original code below
+
+      // if (mdb_cursor_get(layer->mdb_cursor_, &layer->mdb_key_,
+      //         &layer->mdb_value_, MDB_NEXT) != MDB_SUCCESS) {
+      //   // We have reached the end. Restart from the first.
+      //   DLOG(INFO) << "Restarting data prefetching from start.";
+      //   CHECK_EQ(mdb_cursor_get(layer->mdb_cursor_, &layer->mdb_key_,
+      //           &layer->mdb_value_, MDB_FIRST), MDB_SUCCESS);
+      // }
       break;
     default:
       LOG(FATAL) << "Unknown database backend";
