@@ -4,7 +4,7 @@ source folder_paths.sh
 
 # Input: test folder with sub-folders corresponding to model classes
 
-usage="./test_patches.sh <testFolder>"
+usage="./test_patches.sh <testFolder> <gpuId>"
 
 if [ "$1" == "" ]; then
         echo "Incorrect usage. Please specify test folder with sub-folder of patches."
@@ -13,7 +13,15 @@ if [ "$1" == "" ]; then
         exit -1;
 fi
 
+if [ "$2" == "" ]; then
+        echo "Incorrect usage. Please specify GPUID"
+        echo $usage
+        exit -1;
+fi
+
 testFolder=$1
+
+gpuID=$2
 
 for testFolderName in $testFolder/*
 do
@@ -22,6 +30,7 @@ do
         $PYTHON/get_predictions.py --model_def logo_deploy.prototxt \
                 --pretrained_model $FINAL_MODEL_NAME \
                 --gpu \
+                --gpuId $gpuID \
                 --center_only \
                 --mean_file $PYTHON/caffe/imagenet/ilsvrc_2012_mean.npy \
                 $testFolderName $testFolderBaseName

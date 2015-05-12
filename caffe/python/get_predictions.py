@@ -47,6 +47,12 @@ def main(argv):
         help="Switch for gpu computation."
     )
     parser.add_argument(
+        "--gpuId",
+        type=int,
+        default=0,
+        help="Speficify which GPU to use."
+    )
+    parser.add_argument(
         "--center_only",
         action='store_true',
         help="Switch for prediction from center crop alone instead of " +
@@ -94,7 +100,8 @@ def main(argv):
             input_scale=args.input_scale, channel_swap=channel_swap)
 
     if args.gpu:
-        print 'GPU mode'
+        classifier.set_device(args.gpuId)
+        print 'GPU mode : GPU ID: %d' % args.gpuId
 
     # Load numpy array (.npy), directory glob (*.jpg), or image file.
     args.input_file = os.path.expanduser(args.input_file)
