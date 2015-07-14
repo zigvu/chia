@@ -113,6 +113,9 @@ class AnnotatedImage:
     # generate all jiggles and draw/save
     allCrops = annotationTransformer.generate_all_jiggles()
     for label, crops in allCrops.iteritems():
+      if label not in self.configReader.extractionLabels:
+        continue
+      # extract patch
       labelCounter = 0
       for crop in crops:
         if not self.isTest:

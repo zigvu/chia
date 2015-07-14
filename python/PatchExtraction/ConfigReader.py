@@ -70,6 +70,8 @@ class ConfigReader:
     self.pp_tx_tintFraction = float(transformations['blending']['tint_fraction'])
     self.pp_tx_tintBlendFraction = float(transformations['blending']['blend_fraction'])
 
+    self.extractionLabels = config['extraction_labels']
+
   def dump_config(self):
     # spit the config first - logging creates problems it seems
     print "Config dump"

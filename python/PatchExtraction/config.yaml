@@ -49,3 +49,8 @@ positive_patch:
       # fraction of all patches in which to blend another image patch
       # NOTE: not implemented yet
       blend_fraction:                         0.1
+
+# patches for following classes are extracted
+extraction_labels:
+  - 'adidas'
+  - 'sony'
