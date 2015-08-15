@@ -157,6 +157,11 @@ class AnnotatedImage:
       cv2.putText(img, label, (pts[0][0][0] + 2, pts[0][0][1] + 15), font, 0.5, color, 1)
     else:
       cv2.imwrite(outputPatchname, patch)
+      clsName =  label.split(';')
+      bucket = self.configReader.classBuckets.annotationsSets[ clsName[0] ]
+      annotationSet = bucket[ ( self.annotationFileName,
+        clsName[0], int( clsName[1].split(':')[0] ) ) ]
+      annotationSet.addDerivedAnnotation( ( outputPatchname ) )
 
   def mkdir_p(self, path):
     """Util to make path"""

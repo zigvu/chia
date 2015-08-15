@@ -12,6 +12,7 @@ class ConfigReader:
     """Initlize config from YAML file"""
     self.configFileName = configFileName
     config = yaml.load(open(self.configFileName, "r"))
+    self.classBuckets = None
 
     width = int(config['output_width'])
     height = int(config['output_height'])

@@ -4,11 +4,13 @@ import logging
 from collections import OrderedDict
 from shapely.geometry import Polygon
 from Rectangle import Rectangle
+from AnnotationSet import AnnotationSet
 
 class JSONReader:
   """Reads JSON file that contains the annotation"""
-  def __init__(self, jsonFileName, baseImageFolder):
+  def __init__(self, config, jsonFileName, baseImageFolder):
     """Load json file"""
+    self.config = config
     self.jsonFileName = jsonFileName
     with open(jsonFileName) as fd:
       self.jsonDict = json.load(fd)
@@ -23,16 +25,17 @@ class JSONReader:
     # get all rectangles
     self.annotated_objects = {}
     annoObjs = self.jsonDict['annotations']
-    for name, polys in annoObjs.iteritems():
+    for clsName, polys in annoObjs.iteritems():
+      counter = 0
       for poly in polys:
         vettedPoly = JSONReader.get_polygon(poly)
         if vettedPoly != None:
-          if self.annotated_objects.has_key(name):
-            rectangles = self.annotated_objects[name] + [vettedPoly]
-          else:
-            rectangles = [vettedPoly]
+          annotationId = ( self.annotationFileName, clsName, counter )
+          annotationSet = AnnotationSet( annotationId, vettedPoly )
           # update list
-          self.annotated_objects[name] = rectangles
+          self.annotated_objects[ '%s;%s' % ( clsName, counter ) ] = [ vettedPoly ]
+          self.config.classBuckets.addAnnotationSet( annotationSet )
+          counter += 1
 
   def get_rectangles(self, objName):
     """Get all rectangles for objName"""
