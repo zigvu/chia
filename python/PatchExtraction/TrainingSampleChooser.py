@@ -2,11 +2,12 @@
 
 from ClassBuckets import ClassBuckets
 import sys, random, shutil, os
+from TrainingSampleGenerator import BUCKETSFILENAME
 
 class SampleChooser( object ):
-  def __init__( self, classBucketsFileName ):
+  def __init__( self ):
     self.classBuckets = ClassBuckets()
-    self.classBuckets.load( classBucketsFileName )
+    self.classBuckets.load( BUCKETSFILENAME )
     self.minCount = sys.maxint
     self.minClsName = None
     self.maxCount = 0
@@ -58,8 +59,8 @@ class SampleChooser( object ):
         shutil.copyfile( f, dstFileName )
 
 if __name__ == '__main__':
-  if len( sys.argv ) < 3:
-    print 'Usage %s <bucketsFileName> <outputFolderName>' % sys.argv[ 0 ]
+  if len( sys.argv ) < 2:
+    print 'Usage %s <outputFolderName>' % sys.argv[ 0 ]
     sys.exit( 1 )
-  chooser = SampleChooser( sys.argv[ 1 ] )
+  chooser = SampleChooser()
   chooser.saveRandomSample( sys.argv[ 2 ] )

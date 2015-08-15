@@ -15,6 +15,9 @@ from infra.Pipeline import Pipeline
 import multiprocessing, time
 import cPickle as pickle
 
+
+BUCKETSFILENAME='classBuckets.p'
+
 class GenerateSamplesTask( Task ):
   def __call__( self, obj ):
     logging.info( '%s Processing %s' % ( self, obj ) )
@@ -75,7 +78,7 @@ class TrainingSampleGenerator( object ):
           mergedClassBuckets.addAnnotationSet( annotationSet )
 
     myPipeline.join()
-    mergedClassBuckets.dump( 'classBuckets.p' )
+    mergedClassBuckets.dump( BUCKETSFILENAME )
     endTime = time.time()
     logging.info('Took %s seconds' % (endTime - startTime))
 
