@@ -63,4 +63,4 @@ if __name__ == '__main__':
     print 'Usage %s <outputFolderName>' % sys.argv[ 0 ]
     sys.exit( 1 )
   chooser = SampleChooser()
-  chooser.saveRandomSample( sys.argv[ 2 ] )
+  chooser.saveRandomSample( sys.argv[ 1 ] )
