@@ -7,9 +7,10 @@ from shapely.geometry import Point
 
 class Rectangle(Polygon):
   """Treat rectangle as a special polygon"""
-  def __init__(self, polyArray):
+  def __init__(self, polyArray, annotationId):
     """Initialize class"""
     Polygon.__init__(self, polyArray)
+    self.annotationId = annotationId
     self.width = int(self.bounds[2] - self.bounds[0])
     self.height = int(self.bounds[3] - self.bounds[1])
     polyCenter = self.centroid
@@ -29,18 +30,20 @@ class Rectangle(Polygon):
       (b[0][0] + pixelPadding, b[0][1] + pixelPadding),
       (b[1][0] - pixelPadding, b[1][1] + pixelPadding),
       (b[2][0] - pixelPadding, b[2][1] - pixelPadding),
-      (b[3][0] + pixelPadding, b[2][1] - pixelPadding)])
+      (b[3][0] + pixelPadding, b[2][1] - pixelPadding)],
+      self.annotationId)
 
   def get_scaled_rectangle(self, scaleFactor):
     """Get a new rectangle scaled according to given scale factor
     Returns new rectangle
     """
-    origRect = Rectangle([(0,0),(1000,0),(1000,1000),(0,1000)])
+    origRect = Rectangle([(0,0),(1000,0),(1000,1000),(0,1000)], self.annotationId)
     scaledRect = Rectangle([
       (0,                       0),
       (int(1000 * scaleFactor), 0),
       (int(1000 * scaleFactor), int(1000 * scaleFactor)),
-      (0,                       int(1000 * scaleFactor))])
+      (0,                       int(1000 * scaleFactor))],
+      self.annotationId)
     mat = Rectangle.get_perspective_transform_matrix(origRect, scaledRect)
     return Rectangle.apply_perspective_transform_matrix(self, mat)
 
@@ -51,12 +54,13 @@ class Rectangle(Polygon):
     if (pt1LR >= 1) or (pt1UD >= 1) or (pt2LR >= 1) or (pt2UD >= 1) or \
       (pt3LR >= 1) or (pt3UD >= 1) or (pt4LR >= 1) or (pt4UD >= 1):
       raise RuntimeError("Rectangle: Incoorrect shear request")
-    origRect = Rectangle([(0,0),(1000,0),(1000,1000),(0,1000)])
+    origRect = Rectangle([(0,0),(1000,0),(1000,1000),(0,1000)], self.annotationId)
     shearedRect = Rectangle([
       (int(0 + 1000 * pt1LR),    int(0 + 1000 * pt1UD)),
       (int(1000 + 1000 * pt2LR), int(0 + 1000 * pt2UD)),
       (int(1000 + 1000 * pt3LR), int(1000 + 1000 * pt3UD)),
-      (int(0 + 1000 * pt4LR),    int(1000 + 1000 * pt4UD))])
+      (int(0 + 1000 * pt4LR),    int(1000 + 1000 * pt4UD))],
+      self.annotationId)
     mat = Rectangle.get_perspective_transform_matrix(origRect, shearedRect)
     return Rectangle.apply_perspective_transform_matrix(self, mat)
 
@@ -89,6 +93,7 @@ class Rectangle(Polygon):
     js['y2'] = ext[2,1]
     js['x3'] = ext[3,0]
     js['y3'] = ext[3,1]
+    js['annotation_id'] = self.annotationId
     return js
 
   @staticmethod
@@ -103,7 +108,8 @@ class Rectangle(Polygon):
       (numpyBox[0][0], numpyBox[0][1]),
       (numpyBox[1][0], numpyBox[1][1]),
       (numpyBox[2][0], numpyBox[2][1]),
-      (numpyBox[3][0], numpyBox[3][1])])
+      (numpyBox[3][0], numpyBox[3][1])],
+      srcShape.annotationId)
     return bbox
 
   @staticmethod
@@ -123,7 +129,8 @@ class Rectangle(Polygon):
       (b[0][0] + translateX, b[0][1] + translateY),
       (b[1][0] + translateX, b[1][1] + translateY),
       (b[2][0] + translateX, b[2][1] + translateY),
-      (b[3][0] + translateX, b[3][1] + translateY)])
+      (b[3][0] + translateX, b[3][1] + translateY)],
+      self.annotationId)
     return bbox
 
   def get_linear_transform(self):
@@ -198,7 +205,8 @@ class Rectangle(Polygon):
       (b[0][0], b[0][1]),
       (b[1][0], b[1][1]),
       (b[2][0], b[2][1]),
-      (b[3][0], b[3][1])])
+      (b[3][0], b[3][1])],
+      srcShape.annotationId)
     return bbox
   
   @staticmethod
@@ -229,7 +237,8 @@ class Rectangle(Polygon):
       (b[0][0], b[0][1]),
       (b[1][0], b[1][1]),
       (b[2][0], b[2][1]),
-      (b[3][0], b[3][1])])
+      (b[3][0], b[3][1])],
+      srcShape.annotationId)
     return bbox
 
   def __str__(self):

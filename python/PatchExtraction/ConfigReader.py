@@ -15,7 +15,7 @@ class ConfigReader:
 
     width = int(config['output_width'])
     height = int(config['output_height'])
-    self.patch_size = Rectangle([(0,0),(width,0),(width,height),(0,height)])
+    self.patch_size = Rectangle([(0,0),(width,0),(width,height),(0,height)], None)
 
     self.numOfProcessors = int(config['number_of_processors'])
     self.randomNumberSeed = int(config['random_seed'])

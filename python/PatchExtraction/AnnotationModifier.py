@@ -2,7 +2,6 @@ import os
 import logging, json
 from collections import OrderedDict
 from JSONReader import JSONReader
-from Rectangle import Rectangle
 
 class AnnotationModifier:
 	"""Class for modifying existing annotations"""

@@ -18,7 +18,7 @@ class JSONReader:
 
     width = int(self.jsonDict['width'])
     height = int(self.jsonDict['height'])
-    self.imageDimension = Rectangle([(0,0),(width,0),(width,height),(0,height)])
+    self.imageDimension = Rectangle([(0,0),(width,0),(width,height),(0,height)], None)
 
     # get all rectangles
     self.annotated_objects = {}
@@ -67,17 +67,20 @@ class JSONReader:
   @staticmethod
   def get_polygon(poly):
     """Convert coordinates into polygons"""
-    if len(poly) != 8:
+    # we need 8 points plus annotationId per poly
+    if len(poly) != 9:
       for p, v in poly.iteritems():
         logging.error("%s : %d" % (str(p), int(v)))
       logging.error("Polygon in JSON file not quadrilateral")
       return None
     else:
+      annotationId = poly['annotation_id']
       rectangle = Rectangle([
         (int(poly['x0']), int(poly['y0'])),
         (int(poly['x1']), int(poly['y1'])),
         (int(poly['x2']), int(poly['y2'])),
-        (int(poly['x3']), int(poly['y3']))])
+        (int(poly['x3']), int(poly['y3']))],
+        annotationId)
       return Rectangle.rotate_rectangle_for_width_on_xaxis(rectangle)
 
   def save(self, outputJsonFileName = None):

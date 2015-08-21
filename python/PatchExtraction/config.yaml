@@ -10,32 +10,32 @@ random_seed:                                  1234567890
 
 # generate positive patches from annotated positive images
 positive_patch:
-  is_test:                                    true
+  is_test:                                    false
   # in increasing level of severity: DEBUG, INFO, ERROR
-  log_level:                                  DEBUG
+  log_level:                                  INFO
   folders:
     image_input:                              images
     annotation_input:                         annotations
-  # signal to noise ratio, recommended: at least 10% of patch
-  min_object_area_fraction:                   0.1
+  # signal to noise ratio (SNR), recommended: at least 7% of patch
+  min_object_area_fraction:                   0.07
   # the distance from edge of patch in which object should be found
   edge_pixel_padding:                         30
   # fraction of object within padding area that needs to be present
-  partial_object_fraction:                    0.6
+  partial_object_fraction:                    0.8
   # fraction of object Y that is acceptable noise in patch of object X
-  noise_object_fraction:                      0.1
+  noise_object_fraction:                      0.05
   # transformations for synethic data
   transformations:
     jiggles:
       # how many jiggles per annotated label
-      max_num_jiggles:                        5
+      max_num_jiggles:                        40
       # number of pixels to move to create new jiggle window
-      min_pixel_move:                         20
+      min_pixel_move:                         10
     shear:
       # if shearing causes abs(angle) of annotation to be more than below, reject
-      max_shear_angle:                        30
+      max_shear_angle:                        60
       # max num of sheared patches to generate
-      max_num_shear:                          20
+      max_num_shear:                          40
     scaling:
       - 0.4
       - 0.6
@@ -43,14 +43,62 @@ positive_patch:
       - 1.0
       - 1.2
       - 1.4
+      - 1.6
     blending:
       # fraction of all patches in which to also add tint
-      tint_fraction:                          0.1
+      tint_fraction:                          0.4
       # fraction of all patches in which to blend another image patch
       # NOTE: not implemented yet
       blend_fraction:                         0.1
 
 # patches for following classes are extracted
 extraction_labels:
-  - 'adidas'
+  - 'acuvue'
+  - 'adidas-long'
+  - 'apexBrasil'
+  - 'aquarius'
+  - 'BACKGROUND'
+  - 'bandaid'
+  - 'becks'
+  - 'brahma'
+  - 'budweiser'
+  - 'castrol'
+  - 'castrol-CHINESE'
+  - 'centauro'
+  - 'cocacola'
+  - 'continentalTire'
+  - 'emirates'
+  - 'FIELDPLAYERS'
+  - 'fifa'
+  - 'garoto'
+  - 'getTheGol'
+  - 'gol.mcd'
+  - 'HASHallin'
+  - 'HASHbrasilBeyond'
+  - 'HASHoneStadium'
+  - 'HASHpowerToY'
+  - 'HASHsayNoToR'
+  - 'hasseroder'
+  - 'hublot'
+  - 'hyundai'
+  - 'imLovinIt'
+  - 'itau'
+  - 'jhonson'
+  - 'jupiler'
+  - 'kiaMotors'
+  - 'liberty'
+  - 'listerine'
+  - 'marfrig'
+  - 'mcdonalds'
+  - 'moyPark'
+  - 'MuitoTudo'
+  - 'oi'
+  - 'powerade'
+  - 'quilmes'
   - 'sony'
+  - 'SPECTATOR'
+  - 'TEXT'
+  - 'visa'
+  - 'wiseup'
+  - 'yingli'
+  - 'yingli-CHINESE'

@@ -16,7 +16,7 @@ class XMLReader:
 
     width = int(xml['annotation']['imageWidth'])
     height = int(xml['annotation']['imageHeight'])
-    self.imageDimension = Rectangle([(0,0),(width,0),(width,height),(0,height)])
+    self.imageDimension = Rectangle([(0,0),(width,0),(width,height),(0,height)], None)
 
     # get all rectangles
     self.annotated_objects = {}
@@ -57,16 +57,18 @@ class XMLReader:
 
   def get_polygon(self, poly):
     """Convert coordinates into polygons"""
-    if len(poly) != 4:
+    # we need 4 points plus annotationId per poly
+    if len(poly) != 5:
       for p in poly:
         logging.error(str(int(float(p['x']))) + "," + str(int(float(p['y']))))
       logging.error("Polygon in XML file not quadrilateral")
       return None
     else:
+      annotationId = poly['annotation_id']
       poly = Polygon([
         (int(float(poly[0]['x'])), int(float(poly[0]['y']))),
         (int(float(poly[1]['x'])), int(float(poly[1]['y']))),
         (int(float(poly[2]['x'])), int(float(poly[2]['y']))),
         (int(float(poly[3]['x'])), int(float(poly[3]['y'])))])
-      rectangle = Rectangle.get_correctly_rotated_rectangle(poly)
+      rectangle = Rectangle.get_correctly_rotated_rectangle(poly, annotationId)
       return rectangle

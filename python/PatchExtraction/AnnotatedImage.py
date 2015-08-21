@@ -4,6 +4,7 @@ import logging
 import numpy as np
 import random
 from AnnotationTransformer import AnnotationTransformer
+from AnnotationTracker import AnnotationTracker
 from Rectangle import Rectangle
 
 class AnnotatedImage:
@@ -16,7 +17,9 @@ class AnnotatedImage:
     self.baseTransformer.initialize_from_file(annotationReader)
     self.annotationReader = annotationReader
     self.annotationFileName = annotationReader.annotationFileName
-    self.outputFolder = outputFolder
+    self.patchOutputFolder = os.path.join(outputFolder, 'patches')
+    self.trackOutputFolder = os.path.join(outputFolder, 'annotation_trackers')
+
     # if test, spit out large files, else patches
     self.isTest = self.configReader.pp_isTest
     # file name prefix helpers
@@ -25,6 +28,10 @@ class AnnotatedImage:
     # counter for shear
     self.shearCounter = 0
 
+    if not self.isTest:
+      self.mkdir_p(self.trackOutputFolder)
+      self.annotationTracker = AnnotationTracker(self.trackOutputFolder)
+
     # count valid/invalid poly/crops
     self.validCropCount = 0
     self.invalidCropCount = 0
@@ -32,6 +39,9 @@ class AnnotatedImage:
     self.generate_scaled_all()
     self.generate_sheared_all()
 
+    if not self.isTest:
+      self.annotationTracker.save()
+    # log
     logging.info(self.annotationFileName + ": Crop count: Valid: " + str(self.validCropCount) + ", Invalid: " + \
       str(self.invalidCropCount))
 
@@ -42,14 +52,14 @@ class AnnotatedImage:
     loopCounter = 0
     for pt0X, pt0Y, pt1X, pt1Y, pt2X, pt2Y, pt3X, pt3Y in self.configReader.pp_tx_shearConfigs:
       outputFilename = os.path.join(
-        self.outputFolder, 
+        self.patchOutputFolder, 
         self.baseFileName + "_shr_" + repr(self.shearCounter) + self.baseFileExt)
       logging.debug(self.annotationFileName + ": Shearing: " + str(self.shearCounter) + ": " + \
         str(pt0X) + "," + str(pt0Y) + "; " + \
         str(pt1X) + "," + str(pt1Y) + "; " + \
         str(pt2X) + "," + str(pt2Y) + "; " + \
         str(pt3X) + "," + str(pt3Y))
-      self.generate_sheared_single(img, self.outputFolder, outputFilename, 
+      self.generate_sheared_single(img, self.patchOutputFolder, outputFilename, 
         pt0X, pt0Y, pt1X, pt1Y, pt2X, pt2Y, pt3X, pt3Y)
       loopCounter += 1
       # prevent long searches which look like freezes
@@ -57,7 +67,7 @@ class AnnotatedImage:
         (loopCounter > self.configReader.pp_tx_maxNumShear * 10):
         break
 
-  def generate_sheared_single(self, img, outputFolder, outputFilename, pt1LR, pt1UD, pt2LR, pt2UD, pt3LR, pt3UD, pt4LR, pt4UD):
+  def generate_sheared_single(self, img, patchOutputFolder, outputFilename, pt1LR, pt1UD, pt2LR, pt2UD, pt3LR, pt3UD, pt4LR, pt4UD):
     """Save single sheared image/patches"""
     shearedTransformer = self.baseTransformer.get_sheared_copy(pt1LR, pt1UD, pt2LR, pt2UD, pt3LR, pt3UD, pt4LR, pt4UD)
     shearMat = Rectangle.get_perspective_transform_matrix(
@@ -68,7 +78,7 @@ class AnnotatedImage:
     shearedImage = cv2.warpPerspective(img, shearMat, 
       (shearedTransformer.imageConstraints.width, shearedTransformer.imageConstraints.height), 
       shearedImage, cv2.INTER_CUBIC)
-    self.draw_annotated_bboxes(shearedTransformer, shearedImage, outputFolder, outputFilename)
+    self.draw_annotated_bboxes(shearedTransformer, shearedImage, patchOutputFolder, outputFilename)
     # update counts
     # NOTE: self.validCropCount is incremented when a crop is written
     self.invalidCropCount += shearedTransformer.invalidCropCount
@@ -78,18 +88,18 @@ class AnnotatedImage:
     img = cv2.imread(self.annotationReader.imageFileName)
     for scaleFactor in self.configReader.pp_tx_scales:
       outputFilename = os.path.join(
-        self.outputFolder, 
+        self.patchOutputFolder, 
         self.baseFileName + "_scl_" + repr(scaleFactor) + self.baseFileExt)
       logging.debug(self.annotationFileName + ": Scaling: " + str(scaleFactor))
-      self.generate_scaled_single(img, self.outputFolder, outputFilename, scaleFactor)
+      self.generate_scaled_single(img, self.patchOutputFolder, outputFilename, scaleFactor)
 
-  def generate_scaled_single(self, img, outputFolder, outputFilename, scaleFactor):
+  def generate_scaled_single(self, img, patchOutputFolder, outputFilename, scaleFactor):
     """Save single scaled image/patches"""
     scaledTransformer = self.baseTransformer.get_scaled_copy(scaleFactor)
     scaledImage = cv2.resize(img, 
       (scaledTransformer.imageConstraints.width, scaledTransformer.imageConstraints.height), 
       interpolation = cv2.INTER_CUBIC)
-    self.draw_annotated_bboxes(scaledTransformer, scaledImage, outputFolder, outputFilename)
+    self.draw_annotated_bboxes(scaledTransformer, scaledImage, patchOutputFolder, outputFilename)
     # update counts
     # NOTE: self.validCropCount is incremented when a crop is written
     self.invalidCropCount += scaledTransformer.invalidCropCount
@@ -102,7 +112,7 @@ class AnnotatedImage:
     cv2.waitKey(0)
     cv2.destroyAllWindows()
 
-  def draw_annotated_bboxes(self, annotationTransformer, img, outputFolder, outputFilename):
+  def draw_annotated_bboxes(self, annotationTransformer, img, patchOutputFolder, outputFilename):
     """Draw all annotated bounding boxes in image"""
     outputPatchname = None
     if self.isTest:
@@ -119,9 +129,9 @@ class AnnotatedImage:
       labelCounter = 0
       for crop in crops:
         if not self.isTest:
-          self.mkdir_p(os.path.join(outputFolder, label))
+          self.mkdir_p(os.path.join(patchOutputFolder, label))
           baseFileName = os.path.splitext(os.path.basename(outputFilename))[0]
-          outputPatchname = os.path.join(outputFolder, label, 
+          outputPatchname = os.path.join(patchOutputFolder, label, 
             baseFileName + "_" + repr(labelCounter) + self.baseFileExt)
         color = self.configReader.get_next_color()
         self.draw_bbox(img, label + ":" + str(labelCounter), crop, color, outputPatchname)
@@ -160,6 +170,7 @@ class AnnotatedImage:
       cv2.putText(img, label, (pts[0][0][0] + 2, pts[0][0][1] + 15), font, 0.5, color, 1)
     else:
       cv2.imwrite(outputPatchname, patch)
+      self.annotationTracker.addPatch(bbox.annotationId, os.path.basename(outputPatchname))
 
   def mkdir_p(self, path):
     """Util to make path"""

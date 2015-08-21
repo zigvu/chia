@@ -107,7 +107,8 @@ class AnnotationTransformer:
           (stepXPixel,              stepYPixel),
           (stepXPixel + patchWidth, stepYPixel),
           (stepXPixel + patchWidth, stepYPixel + patchHeight),
-          (stepXPixel,              stepYPixel + patchHeight)])
+          (stepXPixel,              stepYPixel + patchHeight)],
+          poly.annotationId)
         if self.is_crop_valid(label, poly, crop):
           jiggleWindows = jiggleWindows + [crop]
     self.randomNumberGenerator.shuffle(jiggleWindows)
