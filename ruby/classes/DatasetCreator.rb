@@ -15,8 +15,6 @@ class DatasetCreator
 		@imageMagick = ImageMagick.new
 
 		FileUtils.mkdir_p(@outputFolder)
-		FileUtils.mkdir_p(@trainFolder)
-		FileUtils.mkdir_p(@testFolder)
 	end
 
 	def split_for_caffe(trainPercent, valPercent, testPercent)
@@ -32,7 +30,9 @@ class DatasetCreator
 		# now that all files are resized, move files and create labels
 		allclassHash = allclass_hash(@inputFolder)
 
-		# validation only necessary for split
+		# create folders
+		FileUtils.mkdir_p(@trainFolder)
+		FileUtils.mkdir_p(@testFolder)
 		FileUtils.mkdir_p(@valFolder)
 
 		dataLabelMappingArr = []
@@ -96,6 +96,9 @@ class DatasetCreator
 	# assume that @inputFolder has test and train folders with different
 	# classes as subfolders to those
 	def create_label_for_caffe
+		FileUtils.mkdir_p(@trainFolder)
+		FileUtils.mkdir_p(@testFolder)
+
 		inputFolderTrain = "#{@inputFolder}/train"
 		inputFolderTest = "#{@inputFolder}/test"
 		allclassHash = allclass_hash(inputFolderTrain)
@@ -121,6 +124,16 @@ class DatasetCreator
 		write_arr_to_file("#{@trainFolder}/train_labels.txt", trainLabelArr)
 		write_arr_to_file("#{@testFolder}/test_labels.txt", testLabelArr)
 		write_arr_to_file("#{@outputFolder}/label_mappings.txt", dataLabelMappingArr)
+	end
+
+	# assume that @inputFolder has classes as subfolders
+	def create_test_lables
+		puts "Working on test images..."
+		puts ""
+		testLabelArr = read_files(@inputFolder)
+
+		# save label files:
+		write_arr_to_file("#{@outputFolder}/leveldb_labels.txt", testLabelArr)
 	end
 
 	def relocate_files(inputFolder, outputFolder, allclassHash)
@@ -151,6 +164,27 @@ class DatasetCreator
 			dataLabelMappingArr << "#{folderName} #{dataLabel}"
 		end
 		return dataLabelMappingArr, labelArr
+	end
+
+	def read_files(inputFolder)
+		labelArr = []
+
+		Dir["#{inputFolder}/*"].each do |folderPath|
+			folderName = File.basename(folderPath)
+			allFiles = Dir["#{folderPath}/*.png"]
+
+			# assume test patches all belong to the same class
+			dataLabel = 0
+
+			allFiles.each do |fname|
+				fBaseName = File.basename(fname)
+				imageLabel = "#{folderName}/#{fBaseName} #{dataLabel}"
+
+				puts "#{imageLabel}"
+				labelArr << "#{imageLabel}"
+			end
+		end
+		return labelArr
 	end
 
 	def allclass_hash(baseFolderName)
