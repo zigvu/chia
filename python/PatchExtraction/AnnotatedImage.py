@@ -169,6 +169,9 @@ class AnnotatedImage:
       font = cv2.FONT_HERSHEY_SIMPLEX
       cv2.putText(img, label, (pts[0][0][0] + 2, pts[0][0][1] + 15), font, 0.5, color, 1)
     else:
+      # include annotation id in filename
+      baseFileName = os.path.splitext(outputPatchname)[0]
+      outputPatchname = baseFileName + "_" + bbox.annotationId + self.baseFileExt
       cv2.imwrite(outputPatchname, patch)
       self.annotationTracker.addPatch(bbox.annotationId, os.path.basename(outputPatchname))
 

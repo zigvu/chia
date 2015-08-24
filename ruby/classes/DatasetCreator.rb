@@ -15,8 +15,6 @@ class DatasetCreator
 		@imageMagick = ImageMagick.new
 
 		FileUtils.mkdir_p(@outputFolder)
-		FileUtils.mkdir_p(@trainFolder)
-		FileUtils.mkdir_p(@testFolder)
 	end
 
 	def split_for_caffe(trainPercent, valPercent, testPercent)
@@ -32,7 +30,9 @@ class DatasetCreator
 		# now that all files are resized, move files and create labels
 		allclassHash = allclass_hash(@inputFolder)
 
-		# validation only necessary for split
+		# create folders
+		FileUtils.mkdir_p(@trainFolder)
+		FileUtils.mkdir_p(@testFolder)
 		FileUtils.mkdir_p(@valFolder)
 
 		dataLabelMappingArr = []
@@ -96,6 +96,9 @@ class DatasetCreator
 	# assume that @inputFolder has test and train folders with different
 	# classes as subfolders to those
 	def create_label_for_caffe
+		FileUtils.mkdir_p(@trainFolder)
+		FileUtils.mkdir_p(@testFolder)
+
 		inputFolderTrain = "#{@inputFolder}/train"
 		inputFolderTest = "#{@inputFolder}/test"
 		allclassHash = allclass_hash(inputFolderTrain)
@@ -123,6 +126,20 @@ class DatasetCreator
 		write_arr_to_file("#{@outputFolder}/label_mappings.txt", dataLabelMappingArr)
 	end
 
+	# assume that @inputFolder has test and train folders with different
+	# classes as subfolders to those
+	def create_test_lables
+		allclassHash = allclass_hash(@inputFolder)
+
+		puts "Working on test images..."
+		puts ""
+		dataLabelMappingArr, testLabelArr = read_files(@inputFolder, allclassHash)
+
+		# save label files:
+		write_arr_to_file("#{@outputFolder}/leveldb_labels.txt", testLabelArr)
+		write_arr_to_file("#{@outputFolder}/label_mappings.txt", dataLabelMappingArr)
+	end
+
 	def relocate_files(inputFolder, outputFolder, allclassHash)
 		dataLabelMappingArr = []
 		labelArr = []
@@ -147,6 +164,31 @@ class DatasetCreator
 				puts "#{imageLabel}"
 				labelArr << "#{imageLabel}"
 				FileUtils.mv(fname, outputFolderNew)
+			end
+			dataLabelMappingArr << "#{folderName} #{dataLabel}"
+		end
+		return dataLabelMappingArr, labelArr
+	end
+
+	def read_files(inputFolder, allclassHash)
+		dataLabelMappingArr = []
+		labelArr = []
+
+		Dir["#{inputFolder}/*"].each do |folderPath|
+			folderName = File.basename(folderPath)
+			allFiles = Dir["#{folderPath}/*.png"]
+
+			dataLabel = allclassHash[:"#{folderName}"]
+			if dataLabel == nil
+				raise RuntimeError, "Class #{folderName} not found in read_files!"
+			end
+
+			allFiles.each do |fname|
+				fBaseName = File.basename(fname)
+				imageLabel = "#{folderPath}/#{fBaseName} #{dataLabel}"
+
+				puts "#{imageLabel}"
+				labelArr << "#{imageLabel}"
 			end
 			dataLabelMappingArr << "#{folderName} #{dataLabel}"
 		end

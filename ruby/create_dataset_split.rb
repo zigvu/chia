@@ -31,7 +31,7 @@ if __FILE__ == $0
 	elsif configReader.datasetTypeTrainTest
 		dc.create_label_for_caffe
 	elsif configReader.datasetTypeTestOnly
-		raise RuntimeError, "Testing is currently done using python script... exiting"
+		dc.create_test_lables
 	else
 		raise RuntimeError, "The config specified in config.yaml hasn't been implemented"
 	end
