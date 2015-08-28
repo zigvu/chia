@@ -15,6 +15,9 @@ if __FILE__ == $0
 		puts "       If the 'dataset_type' mode is set to 'train_test' in config file, then two"
 		puts "       folders - train and test - are expected inside inputFolder and the subfolders"
 		puts "       of these are assumed to be separate classes."
+		puts "       If the 'dataset_type' mode is set to 'test_only' in config file, then"
+		puts "       subfolders of inputFolder are assumed to be separate classes. For"
+		puts "       test_only, all labels are set to 0."
 		exit
 	end
 

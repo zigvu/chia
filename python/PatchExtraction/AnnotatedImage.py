@@ -18,7 +18,7 @@ class AnnotatedImage:
     self.annotationReader = annotationReader
     self.annotationFileName = annotationReader.annotationFileName
     self.patchOutputFolder = os.path.join(outputFolder, 'patches')
-    self.trackOutputFolder = os.path.join(outputFolder, 'annotation_trackers')
+    self.trackOutputFolder = os.path.join(outputFolder, 'patch_buckets')
 
     # if test, spit out large files, else patches
     self.isTest = self.configReader.pp_isTest
