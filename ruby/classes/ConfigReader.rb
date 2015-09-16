@@ -6,7 +6,8 @@ class ConfigReader
 	attr_accessor :multiThreaded, :numOfProcessors, :tempFolder, :outputRectangleSize
 
 	# dataset split
-	attr_accessor :datasetTypeTrainTest, :datasetTypeSplitData, :datasetTypeTestOnly, :datasetSplit
+	attr_accessor :datasetTypeTrainTest, :datasetTypeSplitData, :datasetTypeTestOnly
+	attr_accessor :datasetSplit, :needsImageResizing
 
 	# positive patch
 	attr_accessor :pp_isTest, :pp_ImagesFolder, :pp_AnnotationsFolder
@@ -62,6 +63,7 @@ class ConfigReader
 			val: valPercent,
 			test: testPercent
 		}
+		@needsImageResizing = false
 
 		# positive patch
 		positivePatch = y['positive_patch']

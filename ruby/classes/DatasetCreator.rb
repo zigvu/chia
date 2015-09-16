@@ -232,8 +232,12 @@ class DatasetCreator
 	end
 
 	def convert_copy_image(inputFileName, outputFolder)
-		puts "Resizing file: #{inputFileName}"
 		outputFileName = "#{outputFolder}/#{File.basename(inputFileName)}"
-		@imageMagick.resize_exact(inputFileName, @outputRectangleSize, outputFileName)
+		if @configReader.needsImageResizing
+			puts "Resizing file: #{inputFileName}"
+			@imageMagick.resize_exact(inputFileName, @outputRectangleSize, outputFileName)
+		else
+			FileUtils.ln_sf(inputFileName, outputFileName)
+		end
 	end
 end
