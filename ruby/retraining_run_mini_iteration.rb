@@ -175,7 +175,7 @@ if __FILE__ == $0
   retrainingPatchesResizedFolder = "#{stagingRetrainingFolder}/patches_resized"
   FileUtils.rm_rf(retrainingPatchesResizedFolder)
   FileUtils.mkdir_p(retrainingPatchesResizedFolder)
-  dataSplitTrainLog = "logFolder/dataSplitTrainLog.log"
+  dataSplitTrainLog = "#{logFolder}/dataSplitTrainLog.log"
   cmdOpts = "#{datasetSplitTrain} #{datasetSplitTrainConfig} #{retrainingPatchesOrigFolder} #{retrainingPatchesResizedFolder}   2>&1 | tee #{dataSplitTrainLog}"
   puts "#{cmdOpts}"
   cmdRetVal = system("#{cmdOpts}")
@@ -188,7 +188,7 @@ if __FILE__ == $0
   trainLeveldbFolder = "#{leveldbFolder}/train"
   trainPatchesFolder = "#{retrainingPatchesResizedFolder}/train"
   trainPatchesFileLabels = "#{trainPatchesFolder}/train_labels.txt"
-  trainLeveldbLog = "logFolder/trainLeveldbLog.log"
+  trainLeveldbLog = "#{logFolder}/trainLeveldbLog.log"
   # need a 1 in the end to create random patches for finetune
   cmdOpts = "#{leveldbCreator} #{trainPatchesFolder}/ #{trainPatchesFileLabels} #{trainLeveldbFolder} 1   2>&1 | tee #{trainLeveldbLog}"
   puts "#{cmdOpts}"
@@ -198,7 +198,7 @@ if __FILE__ == $0
   testLeveldbFolder = "#{leveldbFolder}/test"
   testPatchesFolder = "#{retrainingPatchesResizedFolder}/test"
   testPatchesFileLabels = "#{testPatchesFolder}/test_labels.txt"
-  testLeveldbLog = "logFolder/testLeveldbLog.log"
+  testLeveldbLog = "#{logFolder}/testLeveldbLog.log"
   # need a 1 in the end to create random patches for finetune
   cmdOpts = "#{leveldbCreator} #{testPatchesFolder}/ #{testPatchesFileLabels} #{testLeveldbFolder} 1   2>&1 | tee #{testLeveldbLog}"
   puts "#{cmdOpts}"
@@ -212,7 +212,7 @@ if __FILE__ == $0
   puts ""
   # need to chdir to staging retraining directory
   Dir.chdir("#{stagingRetrainingFolder}") do
-    caffeFineTunerLog = "logFolder/caffeFineTunerLog.log"
+    caffeFineTunerLog = "#{logFolder}/caffeFineTunerLog.log"
     cmdOpts = "GLOG_logtostderr=1 #{caffeFineTuner} #{stagingCaffeProtoSolver} #{referenceModelFile}   2>&1 | tee #{caffeFineTunerLog}"
     puts "#{cmdOpts}"
     cmdRetVal = system("#{cmdOpts}")

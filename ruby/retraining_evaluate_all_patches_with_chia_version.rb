@@ -97,7 +97,7 @@ if __FILE__ == $0
       f.write(modifiedPrototxt)
     end
 
-    leveldbEvaluaterLog = "logFolder/leveldbEvaluaterLog_#{currentChiaVersionId}.log"
+    leveldbEvaluaterLog = "#{logFolder}/leveldbEvaluaterLog_#{currentChiaVersionId}.log"
     cmdOpts = "#{leveldbEvaluater} #{modifiedPrototxtFile} #{modelFile} #{leveldbLabels} #{resultsFile} GPU 0   2>&1 | tee #{leveldbEvaluaterLog}"
     puts "#{cmdOpts}"
     cmdRetVal = system("#{cmdOpts}")
