@@ -79,6 +79,9 @@ if __FILE__ == $0
   end
   videoIds.sort!
 
+  logFolder = "#{stagingAreaFolder}/logs"
+  FileUtils.mkdir_p(logFolder)
+
   puts "****************************************"
   puts "Extracting frames from following videos: #{videoIds}"
   puts "****************************************"
@@ -138,7 +141,8 @@ if __FILE__ == $0
   outPatchFolder = "#{cvPatchFolder}/patches"
   FileUtils.rm_rf(outPatchFolder)
   FileUtils.mkdir_p(outPatchFolder)
-  cmdOpts = "#{patchExtractor} #{patchExtractorConfig} #{cvPatchFolder} #{cvPatchFolder}"
+  patchExtractorLog = "logFolder/patchExtractorLog.log"
+  cmdOpts = "#{patchExtractor} #{patchExtractorConfig} #{cvPatchFolder} #{cvPatchFolder}   2>&1 | tee #{patchExtractorLog}"
   puts "#{cmdOpts}"
   cmdRetVal = system("#{cmdOpts}")
   raise "Couldn't execute: \n#{cmdOpts}" if not cmdRetVal
@@ -152,15 +156,17 @@ if __FILE__ == $0
   outLeveldbFolder = "#{cvPatchFolder}/leveldb"
   FileUtils.rm_rf(outLeveldbFolder)
   FileUtils.mkdir_p(outLeveldbFolder)
-  cmdOpts = "#{datasetSplitTest} #{datasetSplitTestConfig} #{outPatchFolder} #{outLeveldbFolder}"
+  datasetSplitTestLog = "logFolder/datasetSplitTestLog.log"
+  cmdOpts = "#{datasetSplitTest} #{datasetSplitTestConfig} #{outPatchFolder} #{outLeveldbFolder}   2>&1 | tee #{datasetSplitTestLog}"
   puts "#{cmdOpts}"
   cmdRetVal = system("#{cmdOpts}")
   raise "Couldn't execute: \n#{cmdOpts}" if not cmdRetVal
 
   leveldbLabelFile = "#{outLeveldbFolder}/leveldb_labels.txt"
   outLeveldbDb = "#{outLeveldbFolder}/leveldb"
+  leveldbCreatorLog = "logFolder/leveldbCreatorLog.log"
   # we shouldn't randomize for testing purposes
-  cmdOpts = "#{leveldbCreator} #{outPatchFolder}/ #{leveldbLabelFile} #{outLeveldbDb}"
+  cmdOpts = "#{leveldbCreator} #{outPatchFolder}/ #{leveldbLabelFile} #{outLeveldbDb}   2>&1 | tee #{leveldbCreatorLog}"
   puts "#{cmdOpts}"
   cmdRetVal = system("#{cmdOpts}")
   raise "Couldn't execute: \n#{cmdOpts}" if not cmdRetVal

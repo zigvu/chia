@@ -85,7 +85,7 @@ int main(int argc, char** argv) {
         char csvLine[1024];
         sprintf(csvLine, "%s", patchFileName.c_str());
         for (int j = 0; j < outputLayerNumOutputs; j++) {
-          sprintf(csvLine, "%s,%f", csvLine, softMaxLayerBlob[0]->cpu_data()[ 2 * k + j ]);
+          sprintf(csvLine, "%s,%f", csvLine, softMaxLayerBlob[0]->cpu_data()[ outputLayerNumOutputs * k + j ]);
         }
         csvFile << csvLine << std::endl;
         LOG(ERROR) << csvLine;

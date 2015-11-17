@@ -99,6 +99,8 @@ if __FILE__ == $0
   puts "Using reference model: #{referenceModelFile}"
   puts "Output model: #{modelFolder}/#{modelFileBaseName}"
 
+  logFolder = "#{stagingAreaFolder}/logs"
+  FileUtils.mkdir_p(logFolder)
 
   stagingRetrainingFolder = "#{stagingAreaFolder}/retraining"
   FileUtils.rm_rf(stagingRetrainingFolder)
@@ -173,7 +175,8 @@ if __FILE__ == $0
   retrainingPatchesResizedFolder = "#{stagingRetrainingFolder}/patches_resized"
   FileUtils.rm_rf(retrainingPatchesResizedFolder)
   FileUtils.mkdir_p(retrainingPatchesResizedFolder)
-  cmdOpts = "#{datasetSplitTrain} #{datasetSplitTrainConfig} #{retrainingPatchesOrigFolder} #{retrainingPatchesResizedFolder}"
+  dataSplitTrainLog = "logFolder/dataSplitTrainLog.log"
+  cmdOpts = "#{datasetSplitTrain} #{datasetSplitTrainConfig} #{retrainingPatchesOrigFolder} #{retrainingPatchesResizedFolder}   2>&1 | tee #{dataSplitTrainLog}"
   puts "#{cmdOpts}"
   cmdRetVal = system("#{cmdOpts}")
   raise "Couldn't execute: \n#{cmdOpts}" if not cmdRetVal
@@ -185,8 +188,9 @@ if __FILE__ == $0
   trainLeveldbFolder = "#{leveldbFolder}/train"
   trainPatchesFolder = "#{retrainingPatchesResizedFolder}/train"
   trainPatchesFileLabels = "#{trainPatchesFolder}/train_labels.txt"
+  trainLeveldbLog = "logFolder/trainLeveldbLog.log"
   # need a 1 in the end to create random patches for finetune
-  cmdOpts = "#{leveldbCreator} #{trainPatchesFolder}/ #{trainPatchesFileLabels} #{trainLeveldbFolder} 1"
+  cmdOpts = "#{leveldbCreator} #{trainPatchesFolder}/ #{trainPatchesFileLabels} #{trainLeveldbFolder} 1   2>&1 | tee #{trainLeveldbLog}"
   puts "#{cmdOpts}"
   cmdRetVal = system("#{cmdOpts}")
   raise "Couldn't execute: \n#{cmdOpts}" if not cmdRetVal
@@ -194,8 +198,9 @@ if __FILE__ == $0
   testLeveldbFolder = "#{leveldbFolder}/test"
   testPatchesFolder = "#{retrainingPatchesResizedFolder}/test"
   testPatchesFileLabels = "#{testPatchesFolder}/test_labels.txt"
+  testLeveldbLog = "logFolder/testLeveldbLog.log"
   # need a 1 in the end to create random patches for finetune
-  cmdOpts = "#{leveldbCreator} #{testPatchesFolder}/ #{testPatchesFileLabels} #{testLeveldbFolder} 1"
+  cmdOpts = "#{leveldbCreator} #{testPatchesFolder}/ #{testPatchesFileLabels} #{testLeveldbFolder} 1   2>&1 | tee #{testLeveldbLog}"
   puts "#{cmdOpts}"
   cmdRetVal = system("#{cmdOpts}")
   raise "Couldn't execute: \n#{cmdOpts}" if not cmdRetVal
@@ -207,7 +212,8 @@ if __FILE__ == $0
   puts ""
   # need to chdir to staging retraining directory
   Dir.chdir("#{stagingRetrainingFolder}") do
-    cmdOpts = "GLOG_logtostderr=1 #{caffeFineTuner} #{stagingCaffeProtoSolver} #{referenceModelFile}"
+    caffeFineTunerLog = "logFolder/caffeFineTunerLog.log"
+    cmdOpts = "GLOG_logtostderr=1 #{caffeFineTuner} #{stagingCaffeProtoSolver} #{referenceModelFile}   2>&1 | tee #{caffeFineTunerLog}"
     puts "#{cmdOpts}"
     cmdRetVal = system("#{cmdOpts}")
     raise "Couldn't execute: \n#{cmdOpts}" if not cmdRetVal
@@ -220,6 +226,6 @@ if __FILE__ == $0
   puts "Done training model - can start patch evaluation now"
   puts "****************************************"
   puts "Run:"
-  puts "~/chia/ruby/retraining_evaluate_all_patches_of_chia_versions.rb #{ARGV[1]}"
+  puts "~/chia/ruby/retraining_evaluate_all_patches_with_chia_version.rb #{ARGV[1]}"
   puts ""
 end

@@ -32,7 +32,7 @@ if __FILE__ == $0
     puts "results are stored in the staging area:"
     puts "#{stagingAreaFolder}/combined_patch_buckets"
     puts " "
-    puts "Usage: ~/chia/ruby/retraining_evaluate_all_patches_of_chia_versions.rb <evaluationChiaVersionId[major.minor]>"
+    puts "Usage: ~/chia/ruby/retraining_evaluate_all_patches_with_chia_version.rb <evaluationChiaVersionId[major.minor]>"
     exit
   end
 
@@ -58,6 +58,9 @@ if __FILE__ == $0
   end
   raise "Couldn't find model file in folder #{modelFolder}" if modelFile == nil
   puts "Using model: #{modelFile}"
+
+  logFolder = "#{stagingAreaFolder}/logs"
+  FileUtils.mkdir_p(logFolder)
 
   combinedPatchFolder = "#{stagingAreaFolder}/combined_patch_buckets"
   FileUtils.rm_rf(combinedPatchFolder)
@@ -94,7 +97,8 @@ if __FILE__ == $0
       f.write(modifiedPrototxt)
     end
 
-    cmdOpts = "#{leveldbEvaluater} #{modifiedPrototxtFile} #{modelFile} #{leveldbLabels} #{resultsFile} GPU 0"
+    leveldbEvaluaterLog = "logFolder/leveldbEvaluaterLog_#{currentChiaVersionId}.log"
+    cmdOpts = "#{leveldbEvaluater} #{modifiedPrototxtFile} #{modelFile} #{leveldbLabels} #{resultsFile} GPU 0   2>&1 | tee #{leveldbEvaluaterLog}"
     puts "#{cmdOpts}"
     cmdRetVal = system("#{cmdOpts}")
     raise "Couldn't execute: \n#{cmdOpts}" if not cmdRetVal
