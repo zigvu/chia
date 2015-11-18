@@ -76,7 +76,7 @@ if __FILE__ == $0
     modelFolder = "#{baseModelFolder}/#{chiaVersionIdMajor}"
     numIteration = numIterationMajorVersion
     largestMinorCVId = 0
-    Dir.glob("#{baseModelFolder}/#{chiaVersionIdMajor - 1}/*").each do |cvId|
+    Dir.glob("#{baseModelFolder}/#{chiaVersionIdMajor - 1}*").each do |cvId|
       next if not File.directory?(cvId)
       minorCVId = cvId.split(".")[1].to_i
       largestMinorCVId = minorCVId if (minorCVId != nil and minorCVId > largestMinorCVId)
